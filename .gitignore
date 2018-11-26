@@ -1,5 +1,23 @@
-# Object file
-*.o
+# User-specific stuff:
+.idea
+*.iml
 
-# Ada Library Information
-*.ali
+# IntelliJ
+out/
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+
+## Gradle template
+.gradle/
+.gradletasknamecache
+!gradle-wrapper.jar
+build/
+
+!libs/*.jar
