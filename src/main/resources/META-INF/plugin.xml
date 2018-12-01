@@ -3,22 +3,28 @@
     <name>InferPlugin</name>
     <vendor email="max2896@ya.ru">Max Oleynik</vendor>
 
-    <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
-    ]]></description>
+    <description>IntelliJ Platform plugin for Facebook Infer</description>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
+    <idea-version since-build="173.0"/>
+
+    <!--<depends>org.jetbrains.idea.maven</depends>-->
+    <!--<depends>org.jetbrains.plugins.gradle</depends>-->
+
+    <project-components>
+        <component>
+            <interface-class>com.maxciv.infer.plugin.InferProjectComponent</interface-class>
+            <implementation-class>com.maxciv.infer.plugin.InferProjectComponent</implementation-class>
+        </component>
+    </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
-    </extensions>
+        <projectService serviceInterface="com.maxciv.infer.plugin.config.InferPluginState"
+                        serviceImplementation="com.maxciv.infer.plugin.config.InferPluginState"/>
 
-    <actions>
-        <!-- Add your actions here -->
-    </actions>
+        <toolWindow id="Infer"
+                    secondary="true"
+                    anchor="bottom"
+                    factoryClass="com.maxciv.infer.plugin.toolwindow.ToolWindowFactory"
+                    icon="/icons/testPassed.png"/>
+    </extensions>
 </idea-plugin>

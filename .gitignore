@@ -21,3 +21,4 @@ out/
 build/
 
 !libs/*.jar
+!build/libs/*all.jar
