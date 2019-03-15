@@ -42,8 +42,8 @@ class ResultsTab(project: Project) : JPanel(BorderLayout()) {
     fun fillTreeFromResult(inferReport: InferReport) {
         rootNode!!.removeAllChildren()
         rootNode!!.inferReport = inferReport
-        if (!inferReport.violations!!.isEmpty()) {
-            inferReport.violations!!.forEach { violation -> addNode(TREE_NODE_FACTORY.createNode(violation)) }
+        if (!inferReport.violations.isEmpty()) {
+            inferReport.violations.forEach { violation -> addNode(TREE_NODE_FACTORY.createNode(violation)) }
         } else {
             addNode(TREE_NODE_FACTORY.createNode("No violations found."))
         }

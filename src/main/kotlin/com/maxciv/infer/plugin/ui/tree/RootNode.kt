@@ -24,7 +24,7 @@ class RootNode : DefaultMutableTreeNode, TreeNodeData {
     override fun render(cellRenderer: CellRenderer) {
         cellRenderer.append(LABEL, SimpleTextAttributes.REGULAR_ATTRIBUTES)
         if (inferReport != null) {
-            cellRenderer.append(" (" + inferReport!!.violations!!.size.toString() + " violations)",
+            cellRenderer.append(" (" + inferReport!!.violations.size.toString() + " violations)",
                     SimpleTextAttributes.GRAYED_ATTRIBUTES)
         }
     }

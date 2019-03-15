@@ -1,5 +1,7 @@
 package com.maxciv.infer.plugin.process.parsers
 
+import java.io.File
+
 /**
  * @author maxim.oleynik
  * @since 14.03.2019
@@ -30,5 +32,23 @@ object GradleParser {
             .filter { it.isNotEmpty() }
             .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
             .toList()
+    }
+
+    fun updateCompilerArgsForFile(filename: String, compilerArgs: List<String>): List<String> {
+        val sourcepathRegex = """.*/main/java""".toRegex()
+        val sourcepath = sourcepathRegex.find(filename)!!.value
+
+        val newArgs = compilerArgs.toMutableList()
+        val indexOfDestination = newArgs.indexOf("-d")
+        val indexOfSourcepath = newArgs.indexOf("-sourcepath")
+        val indexOfClasspath = newArgs.indexOf("-classpath")
+
+        val classpathAddition = newArgs[indexOfDestination + 1] + if (newArgs[indexOfClasspath + 1].isNotBlank()) File.pathSeparator else ""
+        newArgs[indexOfClasspath + 1] = classpathAddition + newArgs[indexOfClasspath + 1]
+
+        val sourcepathAddition = sourcepath + if (newArgs[indexOfSourcepath + 1].isNotBlank()) File.pathSeparator else ""
+        newArgs[indexOfSourcepath + 1] = sourcepathAddition + newArgs[indexOfSourcepath + 1]
+
+        return newArgs
     }
 }

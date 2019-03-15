@@ -16,7 +16,15 @@ class TestGradleParser {
         assertEquals(RESULT_LIST, result)
     }
 
+    @Test
+    fun updateCompilerArgsForFile() {
+        val result = GradleParser.updateCompilerArgsForFile(FILENAME, RESULT_LIST)
+        result.forEach { System.out.println(it) }
+        assertEquals(UPDATED_RESULT_LIST, result)
+    }
+
     companion object {
+        const val FILENAME = "/Users/maxim.oleynik/projects/testInfer/src/main/java/infertest/Pointers.java"
         val RESULT_LIST = listOf(
             "-source",
             "1.8",
@@ -31,6 +39,21 @@ class TestGradleParser {
             "-XDuseUnsharedTable=true",
             "-classpath",
             "/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.5/f645ed69d595b24d4cf8b3fbb64cc505bede8829/gson-2.8.5.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.9.8/11283f21cc480aa86c4df7a0a3243ec508372ed2/jackson-databind-2.9.8.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.8/f5a654e4675769c716e5b387830d19b501ca191/jackson-core-2.9.8.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.9.0/7c10d545325e3a6e72e06381afe469fd40eb701/jackson-annotations-2.9.0.jar"
+        )
+        val UPDATED_RESULT_LIST = listOf(
+            "-source",
+            "1.8",
+            "-target",
+            "1.8",
+            "-d",
+            "/Users/maxim.oleynik/projects/testInfer/build/classes/java/main",
+            "-g",
+            "-sourcepath",
+            "/Users/maxim.oleynik/projects/testInfer/src/main/java ",
+            "-proc:none",
+            "-XDuseUnsharedTable=true",
+            "-classpath",
+            "/Users/maxim.oleynik/projects/testInfer/build/classes/java/main:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.5/f645ed69d595b24d4cf8b3fbb64cc505bede8829/gson-2.8.5.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.9.8/11283f21cc480aa86c4df7a0a3243ec508372ed2/jackson-databind-2.9.8.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.8/f5a654e4675769c716e5b387830d19b501ca191/jackson-core-2.9.8.jar:/Users/maxim.oleynik/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.9.0/7c10d545325e3a6e72e06381afe469fd40eb701/jackson-annotations-2.9.0.jar"
         )
         const val LOGS = """
 [52836][environment] CWD = /Users/maxim.oleynik/projects/testInfer

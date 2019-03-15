@@ -4,6 +4,7 @@ import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.parsers.CompilerArgsParser
 import com.maxciv.infer.plugin.process.parsers.CompilerArgsParserImpl
+import com.maxciv.infer.plugin.process.parsers.GradleParser
 import com.maxciv.infer.plugin.process.shell.CommandResult
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutor
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorImpl
@@ -21,8 +22,21 @@ class InferRunnerImpl(
     private val shell: ShellCommandExecutor = ShellCommandExecutorImpl(File(projectPath))
     private val compilerArgsParser: CompilerArgsParser = CompilerArgsParserImpl()
 
-    override fun runAnalysis(filename: String): InferReport {
-        javac(filename)
+    override fun runAnalysis(buildTool: BuildTools, filename: String): InferReport {
+        when (buildTool) {
+            BuildTools.MAVEN -> {
+                javac(filename, pluginSettings.compilerArgs)
+            }
+            BuildTools.GRADLEW -> {
+                javac(filename, GradleParser.updateCompilerArgsForFile(filename, pluginSettings.compilerArgs))
+            }
+            BuildTools.GRADLE -> {
+                javac(filename, GradleParser.updateCompilerArgsForFile(filename, pluginSettings.compilerArgs))
+            }
+            else -> {
+            }
+        }
+
         val changedFilesIndex = createChangedFilesIndex(filename)
         analyze(changedFilesIndex)
         return ReportProducer.produceInferReport(projectPath)
@@ -49,10 +63,10 @@ class InferRunnerImpl(
         return ReportProducer.produceInferReport(projectPath)
     }
 
-    private fun javac(filename: String): CommandResult {
+    private fun javac(filename: String, compilerArgs: List<String>): CommandResult {
         return shell.execute(
             listOf(pluginSettings.inferPath, "--reactive", "capture", "--", "javac", filename)
-                .plus(pluginSettings.compilerArgs)
+                .plus(compilerArgs)
         )
     }
 
