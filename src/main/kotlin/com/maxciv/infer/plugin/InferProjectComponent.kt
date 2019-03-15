@@ -5,8 +5,8 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.config.InferPluginState
-import com.maxciv.infer.plugin.toolwindow.ResultsTab
-import com.maxciv.infer.plugin.toolwindow.SettingsTab
+import com.maxciv.infer.plugin.ui.toolwindow.ResultsTab
+import com.maxciv.infer.plugin.ui.toolwindow.SettingsTab
 
 /**
  * @author maxim.oleynik

@@ -1,4 +1,4 @@
-package com.maxciv.infer.plugin.tree
+package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.ui.SimpleTextAttributes
 

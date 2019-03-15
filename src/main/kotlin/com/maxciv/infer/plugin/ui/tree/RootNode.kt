@@ -1,7 +1,7 @@
-package com.maxciv.infer.plugin.tree
+package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.ui.SimpleTextAttributes
-import com.maxciv.infer.plugin.process.report.InferReport
+import com.maxciv.infer.plugin.data.report.InferReport
 
 import javax.swing.tree.DefaultMutableTreeNode
 

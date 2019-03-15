@@ -10,4 +10,5 @@ class InferPluginSettings {
 
     var inferPath = "infer"
     var buildTool = BuildTools.DEFAULT
+    var compilerArgs = mutableListOf<String>()
 }

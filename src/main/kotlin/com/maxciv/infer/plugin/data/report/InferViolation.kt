@@ -1,4 +1,4 @@
-package com.maxciv.infer.plugin.process.report
+package com.maxciv.infer.plugin.data.report
 
 import com.google.gson.annotations.SerializedName
 

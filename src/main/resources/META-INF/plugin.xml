@@ -24,7 +24,7 @@
         <toolWindow id="Infer"
                     secondary="true"
                     anchor="bottom"
-                    factoryClass="com.maxciv.infer.plugin.toolwindow.ToolWindowFactory"
+                    factoryClass="com.maxciv.infer.plugin.ui.toolwindow.ToolWindowFactory"
                     icon="/icons/testPassed.png"/>
     </extensions>
 </idea-plugin>

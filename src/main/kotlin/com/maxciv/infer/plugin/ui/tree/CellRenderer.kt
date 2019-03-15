@@ -1,4 +1,4 @@
-package com.maxciv.infer.plugin.tree
+package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ColoredTreeCellRenderer

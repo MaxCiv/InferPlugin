@@ -1,4 +1,4 @@
-package com.maxciv.infer.plugin.toolwindow
+package com.maxciv.infer.plugin.ui.toolwindow
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
@@ -6,10 +6,10 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.config.InferPluginSettings
-import com.maxciv.infer.plugin.process.report.InferReport
-import com.maxciv.infer.plugin.tree.CellRenderer
-import com.maxciv.infer.plugin.tree.RootNode
-import com.maxciv.infer.plugin.tree.TreeNodeFactory
+import com.maxciv.infer.plugin.data.report.InferReport
+import com.maxciv.infer.plugin.ui.tree.CellRenderer
+import com.maxciv.infer.plugin.ui.tree.RootNode
+import com.maxciv.infer.plugin.ui.tree.TreeNodeFactory
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
