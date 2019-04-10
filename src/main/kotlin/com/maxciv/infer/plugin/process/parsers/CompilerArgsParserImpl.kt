@@ -18,15 +18,12 @@ class CompilerArgsParserImpl : CompilerArgsParser {
 
         val logLines = BufferedReader(FileReader(logsFile) as Reader?).readLines()
         return when (buildTool) {
-            BuildTools.MAVEN -> {
-                MavenParser.getCompilerArgs(logLines)
-            }
-            BuildTools.GRADLEW -> {
-                GradleParser.getCompilerArgs(logLines)
-            }
-            BuildTools.GRADLE -> {
-                GradleParser.getCompilerArgs(logLines)
-            }
+//            BuildTools.MAVEN -> {
+//                MavenParser.getCompilerArgs(logLines.toString())
+//            }
+//            BuildTools.GRADLEW, BuildTools.GRADLE -> {
+//                GradleParser.getCompilerArgs(logLines.toString())
+//            }
             else -> {
                 listOf()
             }

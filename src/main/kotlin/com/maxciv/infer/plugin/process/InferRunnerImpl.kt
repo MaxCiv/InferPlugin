@@ -4,7 +4,6 @@ import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.parsers.CompilerArgsParser
 import com.maxciv.infer.plugin.process.parsers.CompilerArgsParserImpl
-import com.maxciv.infer.plugin.process.parsers.GradleParser
 import com.maxciv.infer.plugin.process.shell.CommandResult
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutor
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorImpl
@@ -27,13 +26,8 @@ class InferRunnerImpl(
             BuildTools.MAVEN -> {
                 javac(filename, pluginSettings.compilerArgs)
             }
-            BuildTools.GRADLEW -> {
-                javac(filename, GradleParser.updateCompilerArgsForFile(filename, pluginSettings.compilerArgs))
-            }
-            BuildTools.GRADLE -> {
-                javac(filename, GradleParser.updateCompilerArgsForFile(filename, pluginSettings.compilerArgs))
-            }
-            else -> {
+            BuildTools.GRADLEW, BuildTools.GRADLE -> {
+                javac(filename, pluginSettings.compilerArgs)
             }
         }
 
@@ -55,8 +49,6 @@ class InferRunnerImpl(
             BuildTools.GRADLE -> {
                 gradleClean()
                 gradleRun()
-            }
-            else -> {
             }
         }
         pluginSettings.compilerArgs = compilerArgsParser.getCompilerArgs(buildTool, projectPath).toMutableList()

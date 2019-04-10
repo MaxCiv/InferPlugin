@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.process.parsers
 
+import com.maxciv.infer.plugin.data.report.ProjectModule
 import java.io.File
 
 /**
@@ -8,34 +9,63 @@ import java.io.File
  */
 object GradleParser {
 
-    fun getCompilerArgs(logLines: List<String>): List<String> {
-        val loggerMarkerRegex = """\[.*?]\s*""".toRegex()
-        val javacRegex = """.*javac\s*""".toRegex()
-        val javaFilesRegex = """@.*/gradle.*txt""".toRegex()
-        val javacOptionRegex = """(\s|^)-\S+""".toRegex()
-        val spaceAtBeginningRegex = """^\s.+""".toRegex()
-        val delimiter = "\uD83D\uDE31"
+    // for compiler arguments
+    private val emptyLineRegex = """\n\n""".toRegex()
+    private val loggerMarkerRegex = """\[.*?]\s*""".toRegex()
+    private val javacRegex = """.*javac\s*""".toRegex()
+    private val javaFilesRegex = """@.*/gradle.*txt""".toRegex()
+    private val javacOptionRegex = """(\s|^)-\S+""".toRegex()
+    private val spaceAtBeginningRegex = """^\s.+""".toRegex()
+    private val sourcepathRegex = """.*/(main|test)/java""".toRegex()
+    private const val DELIMETER = "\uD83D\uDE31"
 
-        return logLines.asSequence()
-            .map { it.replace(loggerMarkerRegex, "") }
-            .dropWhile { !it.contains(javacRegex) }
-            .takeWhile { !it.contains(javaFilesRegex) }
-            .map { it.replace(javacRegex, "") }
-            .flatMap { fullLine ->
-                var changedLine = fullLine
-                javacOptionRegex.findAll(fullLine)
-                    .forEach { changedLine = changedLine.replace(it.value, "$delimiter${it.value}$delimiter") }
-                changedLine.replace("^\uD83D\uDE31".toRegex(), "")
-                    .replace("$delimiter$".toRegex(), "")
-                    .split(delimiter).asSequence()
+    // for file list
+    private val fileListBeginningRegex = """.*\+\+Contents of .*filelists/gradle.*\.txt""".toRegex()
+
+
+    fun getCompilerArgs(logs: String): List<ProjectModule> {
+        // 1. Делим по пустым строкам все логи на блоки модулей
+        val moduleBlocks = logs.split(emptyLineRegex)
+
+        // 2. Для каждого модуля получаем список файлов и аргументов компилятора
+        return moduleBlocks.asSequence()
+            .map { moduleBlock ->
+                val fileList = moduleBlock.lines().asSequence()
+                    .map { it.replace(loggerMarkerRegex, "") }
+                    .dropWhile { !it.contains(fileListBeginningRegex) }
+                    .drop(1)
+                    .takeWhile { it.isNotBlank() }
+                    .toList()
+                val compilerArgsList = moduleBlock.lines().asSequence()
+                    .map { it.replace(loggerMarkerRegex, "") }
+                    .dropWhile { !it.contains(javacRegex) }
+                    .takeWhile { !it.contains(javaFilesRegex) }
+                    .map { it.replace(javacRegex, "") }
+                    .flatMap { fullLine ->
+                        var changedLine = fullLine
+                        javacOptionRegex.findAll(fullLine)
+                            .forEach {
+                                changedLine = changedLine.replace(it.value, "$DELIMETER${it.value}$DELIMETER")
+                            }
+                        changedLine.replace("^\uD83D\uDE31".toRegex(), "")
+                            .replace("$DELIMETER$".toRegex(), "")
+                            .split(DELIMETER).asSequence()
+                    }
+                    .filter { it.isNotEmpty() }
+                    .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
+                    .toList()
+                val updatedCompilerArgs =
+                    if (compilerArgsList.isNotEmpty() && fileList.isNotEmpty())
+                        updateCompilerArgsForFile(fileList[0], compilerArgsList)
+
+                    else compilerArgsList
+                ProjectModule(fileList, updatedCompilerArgs)
             }
-            .filter { it.isNotEmpty() }
-            .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
+            .filter { it.compilerArgs.isNotEmpty() && it.sourceFiles.isNotEmpty() }
             .toList()
     }
 
-    fun updateCompilerArgsForFile(filename: String, compilerArgs: List<String>): List<String> {
-        val sourcepathRegex = """.*/main/java""".toRegex()
+    private fun updateCompilerArgsForFile(filename: String, compilerArgs: List<String>): List<String> {
         val sourcepath = sourcepathRegex.find(filename)!!.value
 
         val newArgs = compilerArgs.toMutableList()
@@ -43,10 +73,12 @@ object GradleParser {
         val indexOfSourcepath = newArgs.indexOf("-sourcepath")
         val indexOfClasspath = newArgs.indexOf("-classpath")
 
-        val classpathAddition = newArgs[indexOfDestination + 1] + if (newArgs[indexOfClasspath + 1].isNotBlank()) File.pathSeparator else ""
+        val classpathAddition =
+            newArgs[indexOfDestination + 1] + if (newArgs[indexOfClasspath + 1].isNotBlank()) File.pathSeparator else ""
         newArgs[indexOfClasspath + 1] = classpathAddition + newArgs[indexOfClasspath + 1]
 
-        val sourcepathAddition = sourcepath + if (newArgs[indexOfSourcepath + 1].isNotBlank()) File.pathSeparator else ""
+        val sourcepathAddition =
+            sourcepath + if (newArgs[indexOfSourcepath + 1].isNotBlank()) File.pathSeparator else ""
         newArgs[indexOfSourcepath + 1] = sourcepathAddition + newArgs[indexOfSourcepath + 1]
 
         return newArgs
