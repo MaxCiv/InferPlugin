@@ -48,7 +48,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     init {
         buildToolComboBox = createBuildToolComboBox()
         inferPathTextField.text = pluginSettings!!.inferPath
-        compilerArgsTextField.text = pluginSettings.compilerArgs.joinToString(" ")
+        compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
         inferPathTextField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) {
                 save()
@@ -73,7 +73,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                     project.getComponent(InferProjectComponent::class.java).resultsTab!!.fillTreeFromResult(
                         inferRunner.runFullAnalysis(pluginSettings.buildTool)
                     )
-                    compilerArgsTextField.text = pluginSettings.compilerArgs.joinToString(" ")
+                    compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
                 }
             })
         }

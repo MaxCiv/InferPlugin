@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.config
 
+import com.maxciv.infer.plugin.data.report.ProjectModule
 import com.maxciv.infer.plugin.process.BuildTools
 
 /**
@@ -10,5 +11,5 @@ class InferPluginSettings {
 
     var inferPath = "infer"
     var buildTool = BuildTools.DEFAULT
-    var compilerArgs = mutableListOf<String>()
+    var projectModules = mutableListOf<ProjectModule>()
 }
