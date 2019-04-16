@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.process
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.data.report.InferReport
 
 /**
@@ -9,5 +10,5 @@ import com.maxciv.infer.plugin.data.report.InferReport
 interface InferRunner {
 
     fun runFullAnalysis(buildTool: BuildTools): InferReport
-    fun runAnalysis(buildTool: BuildTools, filename: String): InferReport
+    fun runAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport
 }

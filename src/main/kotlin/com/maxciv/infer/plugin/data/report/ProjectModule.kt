@@ -7,6 +7,6 @@ package com.maxciv.infer.plugin.data.report
  * @since 10.04.2019
  */
 data class ProjectModule(
-    val sourceFiles: List<String>,
-    val compilerArgs: List<String>
+    var sourceFiles: List<String> = mutableListOf(),
+    var compilerArgs: List<String> = mutableListOf()
 )

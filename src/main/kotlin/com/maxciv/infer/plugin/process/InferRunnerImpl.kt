@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.process
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.data.report.ProjectModule
@@ -19,7 +20,6 @@ class InferRunnerImpl(
     private val pluginSettings: InferPluginSettings
 ) : InferRunner {
 
-    private val javaFilesRegex = """\.java$""".toRegex()
     private val shell: ShellCommandExecutor = ShellCommandExecutorImpl(File(projectPath))
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
@@ -42,24 +42,16 @@ class InferRunnerImpl(
         return ReportProducer.produceInferReport(projectPath)
     }
 
-    override fun runAnalysis(buildTool: BuildTools, filename: String): InferReport {
-        // Проверка на соответствие файлу.java
-        if (!filename.contains(javaFilesRegex)) return InferReport()
+    override fun runAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
+        if (!file.extension.equals("java")) return InferReport()
 
-        // Ищем соответствующий файлу модуль, если не находим – возвращаем пустой отчет
-        val currentModule = getModuleForFile(filename, pluginSettings.projectModules)
+        val filepath = file.canonicalPath!!
+        val currentModule = getModuleForFile(filepath, pluginSettings.projectModules)
         if (currentModule.compilerArgs.isEmpty()) return InferReport()
 
-        when (buildTool) {
-            BuildTools.MAVEN -> {
-                javac(filename, currentModule.compilerArgs)
-            }
-            BuildTools.GRADLEW, BuildTools.GRADLE -> {
-                javac(filename, currentModule.compilerArgs)
-            }
-        }
+        javac(filepath, currentModule.compilerArgs)
 
-        val changedFilesIndex = createChangedFilesIndex(filename)
+        val changedFilesIndex = createChangedFilesIndex(filepath)
         analyze(changedFilesIndex)
         return ReportProducer.produceInferReport(projectPath)
     }
@@ -103,10 +95,10 @@ class InferRunnerImpl(
     }
 
     private fun createChangedFilesIndex(filename: String): File {
-        val changedFilesIndex = createTempFile("infer-changed-files-index", ".index")
-        changedFilesIndex.writeText(filename)
-        changedFilesIndex.deleteOnExit()
-        return changedFilesIndex
+        return createTempFile("infer-changed-files-index", ".index").apply {
+            writeText(filename)
+            deleteOnExit()
+        }
     }
 
     private fun analyze(changedFilesIndex: File): CommandResult {

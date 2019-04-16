@@ -17,13 +17,13 @@ class ProjectModulesParserImpl : ProjectModulesParser {
         val logsFile = File("$projectPath/infer-out/logs")
         if (!logsFile.exists()) return listOf()
 
-        val logLines = BufferedReader(FileReader(logsFile) as Reader?).readLines()
+        val logLines = BufferedReader(FileReader(logsFile) as Reader?).readText()
         return when (buildTool) {
             BuildTools.MAVEN -> {
-                MavenParser.getCompilerArgs(logLines.toString())
+                MavenParser.getCompilerArgs(logLines)
             }
             BuildTools.GRADLEW, BuildTools.GRADLE -> {
-                GradleParser.getCompilerArgs(logLines.toString())
+                GradleParser.getCompilerArgs(logLines)
             }
             else -> {
                 listOf()

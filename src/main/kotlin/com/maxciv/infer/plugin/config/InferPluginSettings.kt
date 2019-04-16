@@ -7,9 +7,8 @@ import com.maxciv.infer.plugin.process.BuildTools
  * @author maxim.oleynik
  * @since 27.11.2018
  */
-class InferPluginSettings {
-
-    var inferPath = "infer"
-    var buildTool = BuildTools.DEFAULT
-    var projectModules = mutableListOf<ProjectModule>()
-}
+data class InferPluginSettings(
+    var inferPath: String = "infer",
+    var buildTool: BuildTools = BuildTools.DEFAULT,
+    var projectModules: MutableList<ProjectModule> = mutableListOf()
+)

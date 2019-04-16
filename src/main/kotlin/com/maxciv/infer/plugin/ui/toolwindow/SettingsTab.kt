@@ -85,7 +85,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 override fun run(indicator: ProgressIndicator) {
                     indicator.isIndeterminate = true
                     project.getComponent(InferProjectComponent::class.java).resultsTab!!.fillTreeFromResult(
-                        inferRunner.runAnalysis(pluginSettings.buildTool, virtualFile.canonicalPath!!)
+                        inferRunner.runAnalysis(pluginSettings.buildTool, virtualFile)
                     )
                 }
             })

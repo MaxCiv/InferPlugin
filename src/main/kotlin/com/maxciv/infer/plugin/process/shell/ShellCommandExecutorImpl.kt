@@ -11,7 +11,7 @@ class ShellCommandExecutorImpl(override val workingDirectory: File? = null) : Sh
     override fun execute(command: List<String>, environment: Map<String, String>): CommandResult {
         val process = startProcess(command, environment)
         val exitCode = process.waitFor()
-        return CommandResult(process.inputStream.toString(), process.errorStream.toString(), exitCode, command)
+        return CommandResult(process.inputStream.bufferedReader().readText(), process.errorStream.bufferedReader().readText(), exitCode, command)
     }
 
     override fun startProcess(command: List<String>, environment: Map<String, String>): Process {
