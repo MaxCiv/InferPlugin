@@ -1,6 +1,6 @@
 package com.maxciv.infer.plugin.config
 
-import com.maxciv.infer.plugin.data.report.ProjectModule
+import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.process.BuildTools
 
 /**
