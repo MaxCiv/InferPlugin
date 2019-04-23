@@ -9,23 +9,17 @@ import javax.swing.tree.DefaultMutableTreeNode
  * @author maxim.oleynik
  * @since 01.12.2018
  */
-class RootNode : DefaultMutableTreeNode, TreeNodeData {
+class RootNode : DefaultMutableTreeNode(LABEL), TreeNodeData {
 
-    var inferReport: InferReport? = null
-
-    constructor() : super(LABEL) {}
-
-    constructor(nodeName: String) : super(nodeName) {}
-
-    internal constructor(inferReport: InferReport) {
-        this.inferReport = inferReport
-    }
+    lateinit var inferReport: InferReport
 
     override fun render(cellRenderer: CellRenderer) {
         cellRenderer.append(LABEL, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-        if (inferReport != null) {
-            cellRenderer.append(" (" + inferReport!!.violations.size.toString() + " violations)",
-                    SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        if (this::inferReport.isInitialized) {
+            cellRenderer.append(
+                " (${inferReport.violationsByFile.size} files with violations)",
+                SimpleTextAttributes.GRAYED_ATTRIBUTES
+            )
         }
     }
 

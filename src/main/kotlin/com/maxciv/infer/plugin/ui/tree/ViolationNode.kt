@@ -12,8 +12,7 @@ import javax.swing.tree.DefaultMutableTreeNode
 class ViolationNode(var violation: InferViolation) : DefaultMutableTreeNode(), TreeNodeData {
 
     override fun render(cellRenderer: CellRenderer) {
-        cellRenderer.append("(" + violation.line + ", " + violation.column + ") ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        cellRenderer.append("(" + violation.line + ") ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
         cellRenderer.append(violation.bugTypeHum + " - " + violation.qualifier, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-        cellRenderer.append(" (" + violation.file + ")", SimpleTextAttributes.GRAYED_ATTRIBUTES)
     }
 }

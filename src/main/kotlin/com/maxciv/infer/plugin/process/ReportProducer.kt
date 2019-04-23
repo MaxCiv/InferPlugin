@@ -6,7 +6,6 @@ import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.data.report.InferViolation
 import java.io.File
 import java.io.FileReader
-import java.util.*
 
 /**
  * @author maxim.oleynik
@@ -21,6 +20,6 @@ object ReportProducer {
 
         val collectionType = object : TypeToken<Collection<InferViolation>>() {}.type
         val violations = GSON.fromJson<Collection<InferViolation>>(FileReader("$projectPath/infer-out/report.json"), collectionType)
-        return InferReport(ArrayList(violations))
+        return InferReport(violations.groupBy { it.file })
     }
 }

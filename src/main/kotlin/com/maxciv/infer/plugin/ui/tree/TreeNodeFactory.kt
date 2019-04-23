@@ -1,36 +1,27 @@
 package com.maxciv.infer.plugin.ui.tree
 
-import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.data.report.InferViolation
-
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
  * @author maxim.oleynik
  * @since 01.12.2018
  */
-class TreeNodeFactory private constructor() {
+object TreeNodeFactory {
 
-    fun createNode(userObject: Any): DefaultMutableTreeNode? {
-        if (userObject is InferViolation) {
-            return ViolationNode(userObject)
-        } else if (userObject is InferReport) {
-            return RootNode(userObject)
-        } else if (userObject is String) {
-            return StringNode(userObject)
+    fun createNode(userObject: Any): DefaultMutableTreeNode {
+        return when (userObject) {
+            is InferViolation -> ViolationNode(userObject)
+            is String -> StringNode(userObject)
+            else -> StringNode("Unknown node type")
         }
-        return null
     }
 
-    fun createNode(violation: InferViolation): DefaultMutableTreeNode {
-        return ViolationNode(violation)
+    fun createFileNode(file: String, violationsCount: Int): DefaultMutableTreeNode {
+        return FileNode(file, violationsCount)
     }
 
     fun createDefaultRootNode(): DefaultMutableTreeNode {
         return RootNode()
-    }
-
-    companion object {
-        val instance = TreeNodeFactory()
     }
 }

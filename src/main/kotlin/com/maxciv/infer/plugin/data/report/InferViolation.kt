@@ -9,27 +9,27 @@ import com.google.gson.annotations.SerializedName
 class InferViolation {
 
     @SerializedName("bug_class")
-    var bugClass: String? = null
-    var kind: String? = null
+    var bugClass: String = ""
+    var kind: String = ""
     @SerializedName("bug_type")
-    var bugType: String? = null
-    var qualifier: String? = null
-    var severity: String? = null
-    var visibility: String? = null
+    var bugType: String = ""
+    var qualifier: String = ""
+    var severity: String = ""
+    var visibility: String = ""
     var line: Int = 0
     var column: Int = 0
-    var procedure: String? = null
+    var procedure: String = ""
     @SerializedName("procedure_id")
-    var procedureId: String? = null
+    var procedureId: String = ""
     @SerializedName("procedure_start_line")
     var procedureStartLine: Int = 0
-    var file: String? = null
-    var key: String? = null
+    var file: String = ""
+    var key: String = ""
     @SerializedName("node_key")
-    var nodeKey: String? = null
-    var hash: String? = null
+    var nodeKey: String = ""
+    var hash: String = ""
     @SerializedName("bug_type_hum")
-    var bugTypeHum: String? = null
+    var bugTypeHum: String = ""
     @SerializedName("censored_reason")
-    var censoredReason: String? = null
+    var censoredReason: String = ""
 }

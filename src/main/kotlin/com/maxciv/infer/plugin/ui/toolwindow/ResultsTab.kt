@@ -20,46 +20,43 @@ import javax.swing.tree.DefaultTreeModel
  * @since 01.12.2018
  */
 class ResultsTab(project: Project) : JPanel(BorderLayout()) {
-    private val pluginSettings: InferPluginSettings? = project.getComponent(InferProjectComponent::class.java).pluginSettings
+
+    private val pluginSettings: InferPluginSettings =
+        project.getComponent(InferProjectComponent::class.java).pluginSettings!!
     private val treeResults: Tree
-    private var rootNode: RootNode? = null
+    private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
-        this.treeResults = createNewTree()
+        treeResults = Tree().apply {
+            model = DefaultTreeModel(rootNode)
+            cellRenderer = CellRenderer()
+        }
         add(JBScrollPane(treeResults), BorderLayout.CENTER)
         project.getComponent(InferProjectComponent::class.java).resultsTab = this
     }
 
-    private fun createNewTree(): Tree {
-        val newTree = Tree()
-        rootNode = TREE_NODE_FACTORY.createDefaultRootNode() as RootNode
-        val treeModel = DefaultTreeModel(rootNode)
-        newTree.model = treeModel
-        newTree.cellRenderer = CellRenderer()
-        return newTree
-    }
-
     fun fillTreeFromResult(inferReport: InferReport) {
-        rootNode!!.removeAllChildren()
-        rootNode!!.inferReport = inferReport
-        if (!inferReport.violations.isEmpty()) {
-            inferReport.violations.forEach { violation -> addNode(TREE_NODE_FACTORY.createNode(violation)) }
+        rootNode.removeAllChildren()
+        rootNode.inferReport = inferReport
+
+        if (inferReport.violationsByFile.isNotEmpty()) {
+            inferReport.violationsByFile.forEach { (file, violations) ->
+                addNodeToRoot(TreeNodeFactory.createFileNode(file, violations.count())).also { fileNode ->
+                    violations.forEach { addNodeToParent(fileNode, TreeNodeFactory.createNode(it)) }
+                }
+            }
         } else {
-            addNode(TREE_NODE_FACTORY.createNode("No violations found."))
+            addNodeToRoot(TreeNodeFactory.createNode("No violations found."))
         }
     }
 
-    private fun addNode(node: DefaultMutableTreeNode?): DefaultMutableTreeNode? {
-        return addNode(rootNode!!, node)
+    private fun addNodeToRoot(node: DefaultMutableTreeNode): DefaultMutableTreeNode {
+        return addNodeToParent(rootNode, node)
     }
 
-    private fun addNode(parent: DefaultMutableTreeNode, node: DefaultMutableTreeNode?): DefaultMutableTreeNode? {
+    private fun addNodeToParent(parent: DefaultMutableTreeNode, node: DefaultMutableTreeNode): DefaultMutableTreeNode {
         parent.add(node)
         ApplicationManager.getApplication().invokeLater { (treeResults.model as DefaultTreeModel).reload() }
         return node
-    }
-
-    companion object {
-        private val TREE_NODE_FACTORY = TreeNodeFactory.instance
     }
 }
