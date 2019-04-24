@@ -27,4 +27,20 @@
                     factoryClass="com.maxciv.infer.plugin.ui.toolwindow.ToolWindowFactory"
                     icon="/icons/testPassed.png"/>
     </extensions>
+
+    <actions>
+        <group id="ResultsTabActions" text="Result Tab Actions" popup="true">
+            <action id="RunFileAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunFileAnalysisAction"
+                    text="Run analysis on current file"
+                    description="Run analysis on current file"
+                    icon="/icons/run.png"/>
+
+            <action id="RunFullAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunFullAnalysisAction"
+                    text="Run analysis on current project"
+                    description="Run analysis on current project"
+                    icon="/icons/run_run.png"/>
+        </group>
+    </actions>
 </idea-plugin>

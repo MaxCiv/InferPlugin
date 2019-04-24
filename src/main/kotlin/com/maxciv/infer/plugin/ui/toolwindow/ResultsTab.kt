@@ -1,37 +1,70 @@
 package com.maxciv.infer.plugin.ui.toolwindow
 
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
 import com.maxciv.infer.plugin.InferProjectComponent
+import com.maxciv.infer.plugin.actions.ActionGroups
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.ui.tree.CellRenderer
 import com.maxciv.infer.plugin.ui.tree.RootNode
 import com.maxciv.infer.plugin.ui.tree.TreeNodeFactory
+import com.maxciv.infer.plugin.ui.tree.ViolationNode
 import java.awt.BorderLayout
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.io.File
 import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
+import kotlin.math.max
 
 /**
  * @author maxim.oleynik
  * @since 01.12.2018
  */
-class ResultsTab(project: Project) : JPanel(BorderLayout()) {
+class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     private val pluginSettings: InferPluginSettings =
-        project.getComponent(InferProjectComponent::class.java).pluginSettings!!
+        project.getComponent(InferProjectComponent::class.java).pluginSettings
     private val treeResults: Tree
     private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
+        val toolWindowActionGroup = ActionManager.getInstance().getAction(ActionGroups.RESULTS_TAB.id) as ActionGroup
+        val toolWindowToolbar =
+            ActionManager.getInstance().createActionToolbar("Results", toolWindowActionGroup, false)
+        toolWindowToolbar.component.isVisible = true
+        add(toolWindowToolbar.component, BorderLayout.WEST)
+
         treeResults = Tree().apply {
             model = DefaultTreeModel(rootNode)
             cellRenderer = CellRenderer()
         }
         add(JBScrollPane(treeResults), BorderLayout.CENTER)
+
+        //Add mouse listener to support double click.
+        treeResults.addMouseListener(object : MouseAdapter() {
+            //Get the current tree node where the mouse event happened
+            private val nodeFromEvent: DefaultMutableTreeNode
+                get() {
+                    return treeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
+                }
+
+            override fun mousePressed(e: MouseEvent?) {
+                if (nodeFromEvent is ViolationNode && e!!.clickCount == 2) {
+                    openEditor(nodeFromEvent as ViolationNode)
+                }
+            }
+        })
+
         project.getComponent(InferProjectComponent::class.java).resultsTab = this
     }
 
@@ -58,5 +91,22 @@ class ResultsTab(project: Project) : JPanel(BorderLayout()) {
         parent.add(node)
         ApplicationManager.getApplication().invokeLater { (treeResults.model as DefaultTreeModel).reload() }
         return node
+    }
+
+    private fun openEditor(violationNode: ViolationNode) {
+        val fileEditorManager = FileEditorManager.getInstance(project)
+        val virtualFile = LocalFileSystem.getInstance().findFileByPath(
+            project.basePath!! + "/" + violationNode.violation.file.replace(File.separatorChar, '/')
+        ) ?: return
+
+        fileEditorManager.openTextEditor(
+            OpenFileDescriptor(
+                project,
+                virtualFile,
+                max(violationNode.violation.line - 1, 0),
+                max(violationNode.violation.column - 1, 0)
+            ),
+            true
+        )
     }
 }

@@ -1,19 +1,13 @@
 package com.maxciv.infer.plugin.ui.toolwindow
 
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.util.IconLoader
 import com.intellij.util.ui.JBUI
 import com.maxciv.infer.plugin.InferProjectComponent
+import com.maxciv.infer.plugin.actions.AnalysisActions
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.process.BuildTools
-import com.maxciv.infer.plugin.process.InferRunner
-import com.maxciv.infer.plugin.process.InferRunnerImpl
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -35,19 +29,18 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val buildToolComboBox: ComboBox<String>
 
     private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
-    private val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
+    val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
 
     private val runAnalysisButton = JButton("Run analysis")
     private val runFullAnalysisButton = JButton("Run full analysis")
     //endregion
 
-    private val pluginSettings: InferPluginSettings? =
+    private val pluginSettings: InferPluginSettings =
         project.getComponent(InferProjectComponent::class.java).pluginSettings
-    private val inferRunner: InferRunner = InferRunnerImpl(project.basePath!!, pluginSettings!!)
 
     init {
         buildToolComboBox = createBuildToolComboBox()
-        inferPathTextField.text = pluginSettings!!.inferPath
+        inferPathTextField.text = pluginSettings.inferPath
         compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
         inferPathTextField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) {
@@ -67,28 +60,10 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
             }
         })
         runFullAnalysisButton.addActionListener {
-            ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running......") {
-                override fun run(indicator: ProgressIndicator) {
-                    indicator.isIndeterminate = true
-                    project.getComponent(InferProjectComponent::class.java).resultsTab!!.fillTreeFromResult(
-                        inferRunner.runFullAnalysis(pluginSettings.buildTool)
-                    )
-                    compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
-                }
-            })
+            AnalysisActions.runFullAnalysis(project)
         }
         runAnalysisButton.addActionListener {
-            val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return@addActionListener
-            val virtualFile = FileDocumentManager.getInstance().getFile(editor.document) ?: return@addActionListener
-
-            ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
-                override fun run(indicator: ProgressIndicator) {
-                    indicator.isIndeterminate = true
-                    project.getComponent(InferProjectComponent::class.java).resultsTab!!.fillTreeFromResult(
-                        inferRunner.runAnalysis(pluginSettings.buildTool, virtualFile)
-                    )
-                }
-            })
+            AnalysisActions.runFileAnalysis(project)
         }
         add(createMainPanel(), BorderLayout.NORTH)
         project.getComponent(InferProjectComponent::class.java).settingsTab = this
@@ -156,7 +131,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private fun createBuildToolComboBox(): ComboBox<String> {
         val newComboBox = ComboBox<String>()
         newComboBox.model = DefaultComboBoxModel(BUILD_TOOLS_STRINGS)
-        newComboBox.selectedItem = pluginSettings!!.buildTool.name
+        newComboBox.selectedItem = pluginSettings.buildTool.name
         newComboBox.addActionListener { actionEvent ->
             val comboBox = actionEvent.source as ComboBox<*>
             pluginSettings.buildTool = BuildTools.valueOf(comboBox.selectedItem as String)
@@ -168,6 +143,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         private val ICON = IconLoader.getIcon("/icons/testPassed.png")
         private val COMPONENT_INSETS = JBUI.insets(4, 7, 4, 4)
 
-        private val BUILD_TOOLS_STRINGS = BuildTools.values().filter { it != BuildTools.DEFAULT }.map { it.name }.toTypedArray()
+        private val BUILD_TOOLS_STRINGS =
+            BuildTools.values().filter { it != BuildTools.DEFAULT }.map { it.name }.toTypedArray()
     }
 }
