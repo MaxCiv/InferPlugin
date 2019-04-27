@@ -24,7 +24,7 @@ class InferRunnerImpl(
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
-    override fun runFullAnalysis(buildTool: BuildTools): InferReport {
+    override fun runProjectAnalysis(buildTool: BuildTools): InferReport {
         when (buildTool) {
             BuildTools.MAVEN -> {
                 shell.mavenClean()
@@ -38,13 +38,23 @@ class InferRunnerImpl(
                 shell.gradleClean()
                 shell.gradleCapture()
             }
+            else -> return InferReport()
         }
         shell.analyzeAll()
         pluginSettings.projectModules = projectModulesParser.getProjectModules(buildTool, projectPath).toMutableList()
         return ReportProducer.produceInferReport(projectPath)
     }
 
-    override fun runAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
+    override fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
+        val filepath = file.canonicalPath!!
+        val currentModule = ProjectModuleUtils.getModuleForFile(filepath, pluginSettings.projectModules)
+        if (currentModule.compilerArgs.isEmpty()) return InferReport()
+
+        shell.analyzeClassFiles(currentModule)
+        return ReportProducer.produceInferReport(projectPath)
+    }
+
+    override fun runFileAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
         if (!file.extension.equals("java")) return InferReport()
 
         val filepath = file.canonicalPath!!

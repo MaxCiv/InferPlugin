@@ -34,9 +34,6 @@ object ProjectModuleUtils {
             .toList()
 
         // Если подходящего модуля не нашлось, возвращаем пустой
-        return if (possibleModule.isNotEmpty()) possibleModule[0] else ProjectModule(
-            listOf(),
-            listOf()
-        )
+        return if (possibleModule.isNotEmpty()) possibleModule[0] else ProjectModule(listOf(), listOf())
     }
 }

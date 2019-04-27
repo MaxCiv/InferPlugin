@@ -27,7 +27,29 @@ object AnalysisActions {
             override fun run(indicator: ProgressIndicator) {
                 indicator.isIndeterminate = true
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runAnalysis(
+                    inferProjectComponent.inferRunner.runFileAnalysis(
+                        inferProjectComponent.pluginSettings.buildTool,
+                        virtualFile
+                    )
+                )
+            }
+        })
+    }
+
+    /**
+     * Запустить анализ на текущем модуле, который соответствует открытому в редакторе файлу
+     */
+    fun runModuleAnalysis(project: Project) {
+        val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val virtualFile = FileDocumentManager.getInstance().getFile(editor.document) ?: return
+
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
+            override fun run(indicator: ProgressIndicator) {
+                indicator.isIndeterminate = true
+                project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
+                    inferProjectComponent.inferRunner.runModuleAnalysis(
                         inferProjectComponent.pluginSettings.buildTool,
                         virtualFile
                     )
@@ -39,14 +61,14 @@ object AnalysisActions {
     /**
      * Запустить анализ на всём проекте
      */
-    fun runFullAnalysis(project: Project) {
+    fun runProjectAnalysis(project: Project) {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running......") {
             override fun run(indicator: ProgressIndicator) {
                 indicator.isIndeterminate = true
                 inferProjectComponent.resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runFullAnalysis(inferProjectComponent.pluginSettings.buildTool)
+                    inferProjectComponent.inferRunner.runProjectAnalysis(inferProjectComponent.pluginSettings.buildTool)
                 )
                 inferProjectComponent.settingsTab.compilerArgsTextField.text =
                     inferProjectComponent.pluginSettings.projectModules.joinToString(" ")

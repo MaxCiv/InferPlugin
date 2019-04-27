@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.process.shell
 
+import com.maxciv.infer.plugin.data.ProjectModule
 import java.io.File
 
 /**
@@ -25,6 +26,16 @@ class Shell(
         )
     }
 
+    fun analyzeClassFiles(projectModule: ProjectModule): CommandResult {
+        return shellCommandExecutor.execute(
+            listOf(
+                inferPath, "--classpath", projectModule.getClasspath(),
+                "--sourcepath", projectModule.getSourcePath().split(":").first(),
+                "--generated-classes", projectModule.getGeneratedClasses()
+            )
+        )
+    }
+
     fun analyzeAll(): CommandResult {
         return shellCommandExecutor.execute(listOf(inferPath, "analyze"))
     }
@@ -37,10 +48,6 @@ class Shell(
         return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "mvn", "compile"))
     }
 
-    fun mavenRun(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "run", "--", "mvn", "compile"))
-    }
-
     fun gradlewClean(): CommandResult {
         return shellCommandExecutor.execute(listOf("./gradlew", "clean"))
     }
@@ -49,19 +56,11 @@ class Shell(
         return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "./gradlew", "build"))
     }
 
-    fun gradlewRun(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "run", "--", "./gradlew", "build"))
-    }
-
     fun gradleClean(): CommandResult {
         return shellCommandExecutor.execute(listOf("gradle", "clean"))
     }
 
     fun gradleCapture(): CommandResult {
         return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "gradle", "build"))
-    }
-
-    fun gradleRun(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "run", "--", "gradle", "build"))
     }
 }

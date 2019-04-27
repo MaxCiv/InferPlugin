@@ -60,7 +60,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
             }
         })
         runFullAnalysisButton.addActionListener {
-            AnalysisActions.runFullAnalysis(project)
+            AnalysisActions.runProjectAnalysis(project)
         }
         runAnalysisButton.addActionListener {
             AnalysisActions.runFileAnalysis(project)

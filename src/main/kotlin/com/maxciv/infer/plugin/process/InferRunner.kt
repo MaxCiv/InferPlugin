@@ -9,6 +9,7 @@ import com.maxciv.infer.plugin.data.report.InferReport
  */
 interface InferRunner {
 
-    fun runFullAnalysis(buildTool: BuildTools): InferReport
-    fun runAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport
+    fun runProjectAnalysis(buildTool: BuildTools): InferReport
+    fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport
+    fun runFileAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport
 }

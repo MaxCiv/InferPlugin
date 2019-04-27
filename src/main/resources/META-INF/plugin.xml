@@ -7,12 +7,8 @@
 
     <idea-version since-build="173.0"/>
 
-    <!--<depends>org.jetbrains.idea.maven</depends>-->
-    <!--<depends>org.jetbrains.plugins.gradle</depends>-->
-
     <project-components>
         <component>
-            <interface-class>com.maxciv.infer.plugin.InferProjectComponent</interface-class>
             <implementation-class>com.maxciv.infer.plugin.InferProjectComponent</implementation-class>
         </component>
     </project-components>
@@ -36,8 +32,14 @@
                     description="Run analysis on current file"
                     icon="/icons/run.png"/>
 
-            <action id="RunFullAnalysisAction"
-                    class="com.maxciv.infer.plugin.actions.tabs.results.RunFullAnalysisAction"
+            <action id="RunModuleAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"
+                    text="Run analysis on current module, corresponding to opened file"
+                    description="Run analysis on current project"
+                    icon="/icons/run_run.png"/>
+
+            <action id="RunProjectAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunProjectAnalysisAction"
                     text="Run analysis on current project"
                     description="Run analysis on current project"
                     icon="/icons/run_run.png"/>
