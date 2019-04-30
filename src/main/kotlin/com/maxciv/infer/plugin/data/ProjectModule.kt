@@ -19,6 +19,6 @@ data class ProjectModule(
 
     private fun getNextAfter(element: String): String {
         val index = compilerArgs.indexOf(element)
-        return if (index == -1 || compilerArgs.size < index + 2) "&" else compilerArgs[index + 1]
+        return if (index == -1 || compilerArgs.size < index + 2) "&" else compilerArgs[index + 1].trim()
     }
 }

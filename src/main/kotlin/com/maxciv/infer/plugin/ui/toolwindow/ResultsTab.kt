@@ -26,6 +26,8 @@ import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import kotlin.math.max
 
+
+
 /**
  * @author maxim.oleynik
  * @since 01.12.2018
@@ -34,7 +36,7 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     private val pluginSettings: InferPluginSettings =
         project.getComponent(InferProjectComponent::class.java).pluginSettings
-    private val treeResults: Tree
+    val treeResults: Tree
     private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
@@ -50,21 +52,7 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         }
         add(JBScrollPane(treeResults), BorderLayout.CENTER)
 
-        //Add mouse listener to support double click.
-        treeResults.addMouseListener(object : MouseAdapter() {
-            //Get the current tree node where the mouse event happened
-            private val nodeFromEvent: DefaultMutableTreeNode
-                get() {
-                    return treeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
-                }
-
-            override fun mousePressed(e: MouseEvent?) {
-                if (nodeFromEvent is ViolationNode && e!!.clickCount == 2) {
-                    openEditor(nodeFromEvent as ViolationNode)
-                }
-            }
-        })
-
+        treeResults.addMouseListener(MouseClickListener())
         project.getComponent(InferProjectComponent::class.java).resultsTab = this
     }
 
@@ -108,5 +96,19 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
             ),
             true
         )
+    }
+
+    inner class MouseClickListener : MouseAdapter() {
+        //Get the current tree node where the mouse event happened
+        private val nodeFromEvent: DefaultMutableTreeNode
+            get() {
+                return treeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
+            }
+
+        override fun mousePressed(mouseEvent: MouseEvent) {
+            if (nodeFromEvent is ViolationNode && (mouseEvent.clickCount == 2 || pluginSettings.isAutoscrollToSourceEnabled)) {
+                openEditor(nodeFromEvent as ViolationNode)
+            }
+        }
     }
 }

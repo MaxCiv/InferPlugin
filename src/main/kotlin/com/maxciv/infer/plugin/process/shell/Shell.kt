@@ -30,7 +30,7 @@ class Shell(
         return shellCommandExecutor.execute(
             listOf(
                 inferPath, "--classpath", projectModule.getClasspath(),
-                "--sourcepath", projectModule.getSourcePath().split(":").first(),
+                "--sourcepath", projectModule.getSourcePath().split(":").first().trim(),
                 "--generated-classes", projectModule.getGeneratedClasses()
             )
         )

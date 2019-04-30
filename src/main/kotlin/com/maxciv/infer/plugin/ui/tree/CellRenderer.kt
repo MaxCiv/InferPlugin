@@ -25,6 +25,6 @@ class CellRenderer : ColoredTreeCellRenderer() {
     }
 
     companion object {
-        internal val ICON = IconLoader.getIcon("/icons/testPassed.png")
+        val ICON_VIOLATION = IconLoader.getIcon("/icons/violation.png")
     }
 }

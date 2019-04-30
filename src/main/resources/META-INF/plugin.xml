@@ -35,7 +35,7 @@
             <action id="RunModuleAnalysisAction"
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"
                     text="Run analysis on current module, corresponding to opened file"
-                    description="Run analysis on current project"
+                    description="Run analysis on current module, corresponding to opened file"
                     icon="/icons/run_run.png"/>
 
             <action id="RunProjectAnalysisAction"
@@ -43,6 +43,28 @@
                     text="Run analysis on current project"
                     description="Run analysis on current project"
                     icon="/icons/run_run.png"/>
+
+            <separator/>
+
+            <action id="ExpandAllAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.ExpandAllAction"
+                    text="Expand all"
+                    description="Expand all"
+                    icon="/icons/expandall.png"/>
+
+            <action id="CollapseAllAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.CollapseAllAction"
+                    text="Collapse all"
+                    description="Collapse all"
+                    icon="/icons/collapseall.png"/>
+
+            <separator/>
+
+            <action id="AutoscrollToSourceAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.AutoscrollToSourceAction"
+                    text="Auto-scroll to source of violation"
+                    description="Auto-scroll to source of violation"
+                    icon="/icons/autoscrollToSource.png"/>
         </group>
     </actions>
 </idea-plugin>

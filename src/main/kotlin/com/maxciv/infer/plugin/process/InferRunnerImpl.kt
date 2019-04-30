@@ -61,6 +61,7 @@ class InferRunnerImpl(
         val currentModule = ProjectModuleUtils.getModuleForFile(filepath, pluginSettings.projectModules)
         if (currentModule.compilerArgs.isEmpty()) return InferReport()
 
+        deleteRacerdResults()
         shell.javac(filepath, currentModule.compilerArgs)
 
         val changedFilesIndex = createChangedFilesIndex(filepath)
@@ -73,5 +74,10 @@ class InferRunnerImpl(
             writeText(filename)
             deleteOnExit()
         }
+    }
+
+    private fun deleteRacerdResults() {
+        val racerdDir = File(projectPath + File.separator + "infer-out", "racerd")
+        if (racerdDir.exists()) racerdDir.deleteRecursively()
     }
 }

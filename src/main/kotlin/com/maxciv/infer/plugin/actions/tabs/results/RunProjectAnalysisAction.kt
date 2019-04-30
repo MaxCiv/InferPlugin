@@ -11,8 +11,8 @@ import com.maxciv.infer.plugin.actions.AnalysisActions
  */
 class RunProjectAnalysisAction : AnAction() {
 
-    override fun actionPerformed(event: AnActionEvent?) {
-        val project = event!!.getData(DataKeys.PROJECT) ?: return
+    override fun actionPerformed(event: AnActionEvent) {
+        val project = event.getData(DataKeys.PROJECT) ?: return
         AnalysisActions.runProjectAnalysis(project)
     }
 }

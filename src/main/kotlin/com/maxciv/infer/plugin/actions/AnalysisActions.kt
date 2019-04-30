@@ -25,6 +25,7 @@ object AnalysisActions {
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
             override fun run(indicator: ProgressIndicator) {
+                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runFileAnalysis(
@@ -32,6 +33,10 @@ object AnalysisActions {
                         virtualFile
                     )
                 )
+            }
+
+            override fun onFinished() {
+                inferProjectComponent.pluginSettings.analysisCounter.getAndDecrement()
             }
         })
     }
@@ -47,6 +52,7 @@ object AnalysisActions {
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
             override fun run(indicator: ProgressIndicator) {
+                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runModuleAnalysis(
@@ -54,6 +60,10 @@ object AnalysisActions {
                         virtualFile
                     )
                 )
+            }
+
+            override fun onFinished() {
+                inferProjectComponent.pluginSettings.analysisCounter.getAndDecrement()
             }
         })
     }
@@ -66,12 +76,17 @@ object AnalysisActions {
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running......") {
             override fun run(indicator: ProgressIndicator) {
+                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
                 inferProjectComponent.resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runProjectAnalysis(inferProjectComponent.pluginSettings.buildTool)
                 )
                 inferProjectComponent.settingsTab.compilerArgsTextField.text =
                     inferProjectComponent.pluginSettings.projectModules.joinToString(" ")
+            }
+
+            override fun onFinished() {
+                inferProjectComponent.pluginSettings.analysisCounter.getAndDecrement()
             }
         })
     }
