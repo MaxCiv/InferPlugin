@@ -42,7 +42,9 @@ class InferRunnerImpl(
         }
         shell.analyzeAll()
         pluginSettings.projectModules = projectModulesParser.getProjectModules(buildTool, projectPath).toMutableList()
-        return ReportProducer.produceInferReport(projectPath)
+        val inferReport = ReportProducer.produceInferReport(projectPath)
+        pluginSettings.aggregatedInferReport = inferReport
+        return inferReport
     }
 
     override fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
@@ -51,7 +53,9 @@ class InferRunnerImpl(
         if (currentModule.compilerArgs.isEmpty()) return InferReport()
 
         shell.analyzeClassFiles(currentModule)
-        return ReportProducer.produceInferReport(projectPath)
+        val inferReport = ReportProducer.produceInferReport(projectPath)
+        pluginSettings.aggregatedInferReport = inferReport
+        return inferReport
     }
 
     override fun runFileAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
@@ -66,7 +70,14 @@ class InferRunnerImpl(
 
         val changedFilesIndex = createChangedFilesIndex(filepath)
         shell.analyze(changedFilesIndex)
-        return ReportProducer.produceInferReport(projectPath)
+
+        val inferReport = ReportProducer.produceInferReport(projectPath)
+        val filename = file.canonicalPath!!.replace(projectPath + File.separator, "")
+        pluginSettings.aggregatedInferReport.updateForFile(
+            filename,
+            inferReport.violationsByFile.getOrDefault(filename, listOf())
+        )
+        return inferReport
     }
 
     private fun createChangedFilesIndex(filename: String): File {

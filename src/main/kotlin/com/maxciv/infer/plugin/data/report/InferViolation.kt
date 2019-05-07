@@ -32,4 +32,6 @@ class InferViolation {
     var bugTypeHum: String = ""
     @SerializedName("censored_reason")
     var censoredReason: String = ""
+
+    var offset: Int = 0
 }

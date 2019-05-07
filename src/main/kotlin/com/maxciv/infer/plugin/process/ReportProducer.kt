@@ -20,6 +20,18 @@ object ReportProducer {
 
         val collectionType = object : TypeToken<Collection<InferViolation>>() {}.type
         val violations = GSON.fromJson<Collection<InferViolation>>(FileReader("$projectPath/infer-out/report.json"), collectionType)
-        return InferReport(violations.groupBy { it.file })
+        return InferReport(violations.groupBy { it.file }.toMutableMap())
+            .also { fillViolationOffsets(it, projectPath) }
+    }
+
+    private fun fillViolationOffsets(inferReport: InferReport, projectPath: String) {
+        inferReport.violationsByFile.keys.forEach { file ->
+            val fileLines = File(projectPath + File.separator + file).readLines()
+            inferReport.violationsByFile[file].orEmpty().forEach { violation ->
+                violation.offset = fileLines.take(violation.line)
+                    .map { it.length }
+                    .sum() + violation.line - 1 // include BreakLines except the last one
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin.ui.toolwindow
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
@@ -7,12 +8,15 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
+import com.intellij.util.ui.tree.TreeUtil
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.ActionGroups
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
+import com.maxciv.infer.plugin.process.onsave.OnSaveAnalyzeListener
 import com.maxciv.infer.plugin.ui.tree.CellRenderer
 import com.maxciv.infer.plugin.ui.tree.RootNode
 import com.maxciv.infer.plugin.ui.tree.TreeNodeFactory
@@ -40,6 +44,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
     private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
+        VirtualFileManager.getInstance().addVirtualFileListener(OnSaveAnalyzeListener(project))
+
         val toolWindowActionGroup = ActionManager.getInstance().getAction(ActionGroups.RESULTS_TAB.id) as ActionGroup
         val toolWindowToolbar =
             ActionManager.getInstance().createActionToolbar("Results", toolWindowActionGroup, false)
@@ -54,6 +60,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
         treeResults.addMouseListener(MouseClickListener())
         project.getComponent(InferProjectComponent::class.java).resultsTab = this
+
+        fillTreeFromResult(pluginSettings.aggregatedInferReport)
     }
 
     fun fillTreeFromResult(inferReport: InferReport) {
@@ -69,6 +77,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         } else {
             addNodeToRoot(TreeNodeFactory.createNode("No violations found."))
         }
+        ApplicationManager.getApplication().invokeLater { TreeUtil.expandAll(treeResults) }
+        DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
     private fun addNodeToRoot(node: DefaultMutableTreeNode): DefaultMutableTreeNode {
@@ -100,8 +110,9 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     inner class MouseClickListener : MouseAdapter() {
         //Get the current tree node where the mouse event happened
-        private val nodeFromEvent: DefaultMutableTreeNode
+        private val nodeFromEvent: DefaultMutableTreeNode?
             get() {
+                if (treeResults.selectionPaths == null || treeResults.selectionPaths.isEmpty()) return null
                 return treeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
             }
 

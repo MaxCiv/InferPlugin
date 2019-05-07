@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.InferProjectComponent
 
 /**
@@ -13,6 +14,30 @@ import com.maxciv.infer.plugin.InferProjectComponent
  * @since 24.04.2019
  */
 object AnalysisActions {
+
+    /**
+     * Запустить OnSave анализ
+     */
+    fun runOnSaveAnalysis(project: Project, file: VirtualFile) {
+        val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
+            override fun run(indicator: ProgressIndicator) {
+                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+                indicator.isIndeterminate = true
+                project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
+                    inferProjectComponent.inferRunner.runFileAnalysis(
+                        inferProjectComponent.pluginSettings.buildTool,
+                        file
+                    )
+                )
+            }
+
+            override fun onFinished() {
+                inferProjectComponent.pluginSettings.analysisCounter.getAndDecrement()
+            }
+        })
+    }
 
     /**
      * Запустить анализ на текущем файле, открытом в редакторе

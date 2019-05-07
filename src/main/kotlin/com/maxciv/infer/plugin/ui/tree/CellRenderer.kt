@@ -1,6 +1,5 @@
 package com.maxciv.infer.plugin.ui.tree
 
-import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.ColoredTreeCellRenderer
 import javax.swing.JTree
 
@@ -22,9 +21,5 @@ class CellRenderer : ColoredTreeCellRenderer() {
         if (value is TreeNodeData) {
             value.render(this)
         }
-    }
-
-    companion object {
-        val ICON_VIOLATION = IconLoader.getIcon("/icons/violation.png")
     }
 }

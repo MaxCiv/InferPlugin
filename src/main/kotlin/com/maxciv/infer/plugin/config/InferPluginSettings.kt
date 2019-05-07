@@ -1,6 +1,7 @@
 package com.maxciv.infer.plugin.config
 
 import com.maxciv.infer.plugin.data.ProjectModule
+import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.BuildTools
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -14,6 +15,7 @@ data class InferPluginSettings(
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,
     var isOnSaveAnalyzeEnabled: Boolean = true,
+    var aggregatedInferReport: InferReport = InferReport(),
 
     @Transient val analysisCounter: AtomicInteger = AtomicInteger(0)
 )
