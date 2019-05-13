@@ -30,8 +30,6 @@ import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import kotlin.math.max
 
-
-
 /**
  * @author maxim.oleynik
  * @since 01.12.2018
@@ -44,8 +42,6 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
     private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
-        VirtualFileManager.getInstance().addVirtualFileListener(OnSaveAnalyzeListener(project))
-
         val toolWindowActionGroup = ActionManager.getInstance().getAction(ActionGroups.RESULTS_TAB.id) as ActionGroup
         val toolWindowToolbar =
             ActionManager.getInstance().createActionToolbar("Results", toolWindowActionGroup, false)
@@ -62,6 +58,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         project.getComponent(InferProjectComponent::class.java).resultsTab = this
 
         fillTreeFromResult(pluginSettings.aggregatedInferReport)
+
+        VirtualFileManager.getInstance().addVirtualFileListener(OnSaveAnalyzeListener(project))
     }
 
     fun fillTreeFromResult(inferReport: InferReport) {

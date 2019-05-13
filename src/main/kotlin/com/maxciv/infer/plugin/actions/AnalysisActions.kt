@@ -28,7 +28,8 @@ object AnalysisActions {
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runFileAnalysis(
                         inferProjectComponent.pluginSettings.buildTool,
-                        file
+                        file,
+                        indicator
                     )
                 )
             }
@@ -55,7 +56,8 @@ object AnalysisActions {
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runFileAnalysis(
                         inferProjectComponent.pluginSettings.buildTool,
-                        virtualFile
+                        virtualFile,
+                        indicator
                     )
                 )
             }
@@ -82,7 +84,8 @@ object AnalysisActions {
                 project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
                     inferProjectComponent.inferRunner.runModuleAnalysis(
                         inferProjectComponent.pluginSettings.buildTool,
-                        virtualFile
+                        virtualFile,
+                        indicator
                     )
                 )
             }
@@ -104,8 +107,12 @@ object AnalysisActions {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
                 inferProjectComponent.resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runProjectAnalysis(inferProjectComponent.pluginSettings.buildTool)
+                    inferProjectComponent.inferRunner.runProjectAnalysis(
+                        inferProjectComponent.pluginSettings.buildTool,
+                        indicator
+                    )
                 )
+                //TODO норм вывод аргументов по модулям?
                 inferProjectComponent.settingsTab.compilerArgsTextField.text =
                     inferProjectComponent.pluginSettings.projectModules.joinToString(" ")
             }

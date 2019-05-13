@@ -1,5 +1,7 @@
 package com.maxciv.infer.plugin.process
 
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
@@ -24,22 +26,27 @@ class InferRunnerImpl(
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
-    override fun runProjectAnalysis(buildTool: BuildTools): InferReport {
+    override fun runProjectAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport {
+        indicator.updateText("Infer: Cleaning...")
         when (buildTool) {
             BuildTools.MAVEN -> {
                 shell.mavenClean()
+                indicator.updateText("Infer: Capturing...")
                 shell.mavenCapture()
             }
             BuildTools.GRADLEW -> {
                 shell.gradlewClean()
+                indicator.updateText("Infer: Capturing...")
                 shell.gradlewCapture()
             }
             BuildTools.GRADLE -> {
                 shell.gradleClean()
+                indicator.updateText("Infer: Capturing...")
                 shell.gradleCapture()
             }
             else -> return InferReport()
         }
+        indicator.updateText("Infer: Analysing...")
         shell.analyzeAll()
         pluginSettings.projectModules = projectModulesParser.getProjectModules(buildTool, projectPath).toMutableList()
         val inferReport = ReportProducer.produceInferReport(projectPath)
@@ -47,27 +54,40 @@ class InferRunnerImpl(
         return inferReport
     }
 
-    override fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
+    override fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile, indicator: ProgressIndicator?): InferReport {
         val filepath = file.canonicalPath!!
         val currentModule = ProjectModuleUtils.getModuleForFile(filepath, pluginSettings.projectModules)
         if (currentModule.compilerArgs.isEmpty()) return InferReport()
 
+        if (pluginSettings.isCompileOnModuleAnalysisEnabled) {
+            indicator.updateText("Infer: Compiling...")
+            when (buildTool) {
+                BuildTools.MAVEN -> shell.mavenCompile()
+                BuildTools.GRADLEW -> shell.gradlewCompile()
+                BuildTools.GRADLE -> shell.gradleCompile()
+                else -> return InferReport()
+            }
+        }
+
+        indicator.updateText("Infer: Analysing...")
         shell.analyzeClassFiles(currentModule)
         val inferReport = ReportProducer.produceInferReport(projectPath)
         pluginSettings.aggregatedInferReport = inferReport
         return inferReport
     }
 
-    override fun runFileAnalysis(buildTool: BuildTools, file: VirtualFile): InferReport {
+    override fun runFileAnalysis(buildTool: BuildTools, file: VirtualFile, indicator: ProgressIndicator?): InferReport {
         if (!file.extension.equals("java")) return InferReport()
 
         val filepath = file.canonicalPath!!
         val currentModule = ProjectModuleUtils.getModuleForFile(filepath, pluginSettings.projectModules)
         if (currentModule.compilerArgs.isEmpty()) return InferReport()
 
+        indicator.updateText("Infer: Capturing...")
         deleteRacerdResults()
         shell.javac(filepath, currentModule.compilerArgs)
 
+        indicator.updateText("Infer: Analysing...")
         val changedFilesIndex = createChangedFilesIndex(filepath)
         shell.analyze(changedFilesIndex)
 
@@ -90,5 +110,10 @@ class InferRunnerImpl(
     private fun deleteRacerdResults() {
         val racerdDir = File(projectPath + File.separator + "infer-out", "racerd")
         if (racerdDir.exists()) racerdDir.deleteRecursively()
+    }
+
+    private fun ProgressIndicator?.updateText(newText: String) {
+        val progressIndicator = this ?: ProgressIndicatorProvider.getGlobalProgressIndicator()
+        progressIndicator?.apply { text = newText  }
     }
 }

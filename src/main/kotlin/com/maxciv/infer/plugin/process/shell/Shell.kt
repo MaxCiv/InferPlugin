@@ -44,6 +44,10 @@ class Shell(
         return shellCommandExecutor.execute(listOf("mvn", "clean"))
     }
 
+    fun mavenCompile(): CommandResult {
+        return shellCommandExecutor.execute(listOf("mvn", "compile"))
+    }
+
     fun mavenCapture(): CommandResult {
         return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "mvn", "compile"))
     }
@@ -52,12 +56,20 @@ class Shell(
         return shellCommandExecutor.execute(listOf("./gradlew", "clean"))
     }
 
+    fun gradlewCompile(): CommandResult {
+        return shellCommandExecutor.execute(listOf("./gradlew", "build"))
+    }
+
     fun gradlewCapture(): CommandResult {
         return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "./gradlew", "build"))
     }
 
     fun gradleClean(): CommandResult {
         return shellCommandExecutor.execute(listOf("gradle", "clean"))
+    }
+
+    fun gradleCompile(): CommandResult {
+        return shellCommandExecutor.execute(listOf("gradle", "build"))
     }
 
     fun gradleCapture(): CommandResult {

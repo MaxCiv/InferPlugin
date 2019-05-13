@@ -15,6 +15,7 @@ data class InferPluginSettings(
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,
     var isOnSaveAnalyzeEnabled: Boolean = true,
+    var isCompileOnModuleAnalysisEnabled: Boolean = false,
     var aggregatedInferReport: InferReport = InferReport(),
 
     @Transient val analysisCounter: AtomicInteger = AtomicInteger(0)

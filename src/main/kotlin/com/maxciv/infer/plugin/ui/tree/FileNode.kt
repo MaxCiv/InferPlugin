@@ -11,9 +11,23 @@ import javax.swing.tree.DefaultMutableTreeNode
 class FileNode(var file: String, var violationsCount: Int) : DefaultMutableTreeNode(), TreeNodeData {
 
     override fun render(cellRenderer: CellRenderer) {
-        cellRenderer.apply {
-            file.split(File.separator).last().also {className ->
+        shortFilePath(cellRenderer)
+    }
+
+    private fun fullFilePath(cellRenderer: CellRenderer) {
+        with(cellRenderer) {
+            file.split(File.separator).last().also { className ->
                 append(file.replace(className, ""), SimpleTextAttributes.REGULAR_ATTRIBUTES)
+                append(className.replace(".java", ""), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                append(".java", SimpleTextAttributes.REGULAR_ATTRIBUTES)
+            }
+            append(" ($violationsCount violations) ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        }
+    }
+
+    private fun shortFilePath(cellRenderer: CellRenderer) {
+        with(cellRenderer) {
+            file.split(File.separator).last().also { className ->
                 append(className.replace(".java", ""), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
                 append(".java", SimpleTextAttributes.REGULAR_ATTRIBUTES)
             }

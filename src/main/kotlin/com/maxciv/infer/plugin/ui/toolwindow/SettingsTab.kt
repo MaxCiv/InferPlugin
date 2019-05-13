@@ -2,7 +2,6 @@ package com.maxciv.infer.plugin.ui.toolwindow
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
-import com.intellij.openapi.util.IconLoader
 import com.intellij.util.ui.JBUI
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.AnalysisActions
@@ -31,8 +30,9 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
     val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
 
-    private val runAnalysisButton = JButton("Run analysis")
     private val runFullAnalysisButton = JButton("Run full analysis")
+
+    private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
     //endregion
 
     private val pluginSettings: InferPluginSettings =
@@ -62,8 +62,9 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         runFullAnalysisButton.addActionListener {
             AnalysisActions.runProjectAnalysis(project)
         }
-        runAnalysisButton.addActionListener {
-            AnalysisActions.runFileAnalysis(project)
+        compileOnModuleAnalysisCheckBox.isSelected = pluginSettings.isCompileOnModuleAnalysisEnabled
+        compileOnModuleAnalysisCheckBox.addChangeListener {
+            pluginSettings.isCompileOnModuleAnalysisEnabled = compileOnModuleAnalysisCheckBox.isSelected
         }
         add(createMainPanel(), BorderLayout.NORTH)
         project.getComponent(InferProjectComponent::class.java).settingsTab = this
@@ -119,8 +120,8 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
 
         mainPanel.add(
-            runAnalysisButton, GridBagConstraints(
-                0, 4, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
+            compileOnModuleAnalysisCheckBox, GridBagConstraints(
+                0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -140,9 +141,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     }
 
     companion object {
-        private val ICON = IconLoader.getIcon("/icons/testPassed.png")
         private val COMPONENT_INSETS = JBUI.insets(4, 7, 4, 4)
-
         private val BUILD_TOOLS_STRINGS =
             BuildTools.values().filter { it != BuildTools.DEFAULT }.map { it.name }.toTypedArray()
     }
