@@ -1,6 +1,7 @@
 package com.maxciv.infer.plugin.process.shell
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * @author maxim.oleynik
@@ -8,10 +9,15 @@ import java.io.File
  */
 class ShellCommandExecutorImpl(override val workingDirectory: File? = null) : ShellCommandExecutor {
 
-    override fun execute(command: List<String>, environment: Map<String, String>): CommandResult {
+    override fun execute(command: List<String>, environment: Map<String, String>, timeoutSec: Long): CommandResult {
         val process = startProcess(command, environment)
-        val exitCode = process.waitFor()
-        return CommandResult(process.inputStream.bufferedReader().readText(), process.errorStream.bufferedReader().readText(), exitCode, command)
+        process.waitFor(timeoutSec, TimeUnit.SECONDS)
+        return CommandResult(
+            process.inputStream.bufferedReader().readText(),
+            process.errorStream.bufferedReader().readText(),
+            process.exitValue(),
+            command
+        )
     }
 
     override fun startProcess(command: List<String>, environment: Map<String, String>): Process {

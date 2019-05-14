@@ -15,21 +15,21 @@ class Shell(
 ) {
     fun javac(filename: String, compilerArgs: List<String>): CommandResult {
         return shellCommandExecutor.execute(
-            listOf(inferPath, "--reactive", "capture", "--", "javac", filename)
+            listOf(inferPath, "--no-progress-bar", "--reactive", "capture", "--", "javac", filename)
                 .plus(compilerArgs)
         )
     }
 
     fun analyze(changedFilesIndex: File): CommandResult {
         return shellCommandExecutor.execute(
-            listOf(inferPath, "analyze", "--changed-files-index", changedFilesIndex.canonicalPath)
+            listOf(inferPath, "--no-progress-bar", "analyze", "--changed-files-index", changedFilesIndex.canonicalPath)
         )
     }
 
     fun analyzeClassFiles(projectModule: ProjectModule): CommandResult {
         return shellCommandExecutor.execute(
             listOf(
-                inferPath, "--classpath", projectModule.getClasspath(),
+                inferPath, "--no-progress-bar", "--classpath", projectModule.getClasspath(),
                 "--sourcepath", projectModule.getSourcePath().split(":").first().trim(),
                 "--generated-classes", projectModule.getGeneratedClasses()
             )
@@ -37,7 +37,7 @@ class Shell(
     }
 
     fun analyzeAll(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "analyze"))
+        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "analyze"))
     }
 
     fun mavenClean(): CommandResult {
@@ -49,7 +49,7 @@ class Shell(
     }
 
     fun mavenCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "mvn", "compile"))
+        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "mvn", "compile"))
     }
 
     fun gradlewClean(): CommandResult {
@@ -61,7 +61,7 @@ class Shell(
     }
 
     fun gradlewCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "./gradlew", "build"))
+        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "./gradlew", "build"))
     }
 
     fun gradleClean(): CommandResult {
@@ -73,6 +73,6 @@ class Shell(
     }
 
     fun gradleCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "capture", "--", "gradle", "build"))
+        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "gradle", "build"))
     }
 }

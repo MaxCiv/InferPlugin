@@ -10,6 +10,6 @@ interface ShellCommandExecutor {
 
     val workingDirectory: File?
 
-    fun execute(command: List<String>, environment: Map<String, String> = mapOf()): CommandResult
+    fun execute(command: List<String>, environment: Map<String, String> = mapOf(), timeoutSec: Long = 120L): CommandResult
     fun startProcess(command: List<String>, environment: Map<String, String> = mapOf()): Process
 }
