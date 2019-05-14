@@ -43,10 +43,10 @@
                     description="Run analysis on current module, corresponding to opened file"
                     icon="AllIcons.RunConfigurations.TestState.Run_run"/>
 
-            <action id="RunProjectAnalysisAction"
-                    class="com.maxciv.infer.plugin.actions.tabs.results.RunProjectAnalysisAction"
-                    text="Run analysis on current project"
-                    description="Run analysis on current project"
+            <action id="RunAllModulesAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunAllModulesAnalysisAction"
+                    text="Run analysis on all modules"
+                    description="Run analysis on all modules"
                     icon="AllIcons.RunConfigurations.TestState.Run_run"/>
 
             <separator/>

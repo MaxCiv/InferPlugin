@@ -56,6 +56,26 @@ class InferRunnerImpl(
         return inferReport
     }
 
+    override fun runAllModulesAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport {
+        if (pluginSettings.isCompileOnModuleAnalysisEnabled) {
+            indicator.updateText("Infer: Compiling...")
+            when (buildTool) {
+                BuildTools.MAVEN -> shell.mavenCompile()
+                BuildTools.GRADLEW -> shell.gradlewCompile()
+                BuildTools.GRADLE -> shell.gradleCompile()
+                else -> return InferReport()
+            }
+        }
+
+        pluginSettings.projectModules.forEachIndexed { index, module ->
+            indicator.updateText("Infer: Analysing ${index + 1}...")
+            shell.analyzeClassFiles(module)
+            val inferReport = ReportProducer.produceInferReport(projectPath)
+            pluginSettings.aggregatedInferReport.updateForModuleReport(inferReport, module, projectPath)
+        }
+        return pluginSettings.aggregatedInferReport
+    }
+
     override fun runModuleAnalysis(buildTool: BuildTools, file: VirtualFile, indicator: ProgressIndicator?): InferReport {
         val filepath = file.canonicalPath!!
         val currentModule = ProjectModuleUtils.getModuleForFile(filepath, pluginSettings.projectModules)

@@ -97,6 +97,30 @@ object AnalysisActions {
     }
 
     /**
+     * Запустить анализ всех модулей
+     */
+    fun runAllModulesAnalysis(project: Project) {
+        val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
+            override fun run(indicator: ProgressIndicator) {
+                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+                indicator.isIndeterminate = true
+                inferProjectComponent.inferRunner.runAllModulesAnalysis(
+                    inferProjectComponent.pluginSettings.buildTool,
+                    indicator
+                )
+                inferProjectComponent.resultsTab.updateCurrentFileTree()
+                inferProjectComponent.resultsTab.updateFullReportTree()
+            }
+
+            override fun onFinished() {
+                inferProjectComponent.pluginSettings.analysisCounter.getAndDecrement()
+            }
+        })
+    }
+
+    /**
      * Запустить анализ на всём проекте
      */
     fun runProjectAnalysis(project: Project) {
