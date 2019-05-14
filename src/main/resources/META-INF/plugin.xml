@@ -21,7 +21,7 @@
                     secondary="true"
                     anchor="bottom"
                     factoryClass="com.maxciv.infer.plugin.ui.toolwindow.ToolWindowFactory"
-                    icon="/icons/testPassed.png"/>
+                    icon="/icons/infer.png"/>
 
         <codeInsight.lineMarkerProvider
                 language="JAVA"
@@ -35,19 +35,19 @@
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunFileAnalysisAction"
                     text="Run analysis on current file"
                     description="Run analysis on current file"
-                    icon="/icons/run.png"/>
+                    icon="AllIcons.RunConfigurations.TestState.Run"/>
 
             <action id="RunModuleAnalysisAction"
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"
                     text="Run analysis on current module, corresponding to opened file"
                     description="Run analysis on current module, corresponding to opened file"
-                    icon="/icons/run_run.png"/>
+                    icon="AllIcons.RunConfigurations.TestState.Run_run"/>
 
             <action id="RunProjectAnalysisAction"
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunProjectAnalysisAction"
                     text="Run analysis on current project"
                     description="Run analysis on current project"
-                    icon="/icons/run_run.png"/>
+                    icon="AllIcons.RunConfigurations.TestState.Run_run"/>
 
             <separator/>
 
@@ -55,13 +55,13 @@
                     class="com.maxciv.infer.plugin.actions.tabs.results.ExpandAllAction"
                     text="Expand all"
                     description="Expand all"
-                    icon="/icons/expandall.png"/>
+                    icon="AllIcons.Actions.Expandall"/>
 
             <action id="CollapseAllAction"
                     class="com.maxciv.infer.plugin.actions.tabs.results.CollapseAllAction"
                     text="Collapse all"
                     description="Collapse all"
-                    icon="/icons/collapseall.png"/>
+                    icon="AllIcons.Actions.Collapseall"/>
 
             <separator/>
 
@@ -69,7 +69,7 @@
                     class="com.maxciv.infer.plugin.actions.tabs.results.AutoscrollToSourceAction"
                     text="Auto-scroll to source of violation"
                     description="Auto-scroll to source of violation"
-                    icon="/icons/autoscrollToSource.png"/>
+                    icon="AllIcons.General.AutoscrollToSource"/>
 
             <separator/>
 
@@ -77,7 +77,7 @@
                     class="com.maxciv.infer.plugin.actions.tabs.results.OnSaveToggleAction"
                     text="OnSave analysis"
                     description="OnSave analysis"
-                    icon="/icons/run.png"/>
+                    icon="AllIcons.Actions.Profile"/>
         </group>
     </actions>
 </idea-plugin>

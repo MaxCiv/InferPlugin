@@ -1,7 +1,6 @@
 package com.maxciv.infer.plugin.process
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.report.InferReport
@@ -9,6 +8,8 @@ import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
 import com.maxciv.infer.plugin.process.shell.Shell
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorImpl
+import com.maxciv.infer.plugin.toProjectRelativePath
+import com.maxciv.infer.plugin.updateText
 import java.io.File
 
 /**
@@ -48,6 +49,7 @@ class InferRunnerImpl(
         }
         indicator.updateText("Infer: Analysing...")
         shell.analyzeAll()
+        indicator.updateText("Infer: Finishing...")
         pluginSettings.projectModules = projectModulesParser.getProjectModules(buildTool, projectPath).toMutableList()
         val inferReport = ReportProducer.produceInferReport(projectPath)
         pluginSettings.aggregatedInferReport = inferReport
@@ -71,8 +73,9 @@ class InferRunnerImpl(
 
         indicator.updateText("Infer: Analysing...")
         shell.analyzeClassFiles(currentModule)
+        indicator.updateText("Infer: Finishing...")
         val inferReport = ReportProducer.produceInferReport(projectPath)
-        pluginSettings.aggregatedInferReport = inferReport
+        pluginSettings.aggregatedInferReport.updateForModuleReport(inferReport, currentModule, projectPath)
         return inferReport
     }
 
@@ -91,8 +94,9 @@ class InferRunnerImpl(
         val changedFilesIndex = createChangedFilesIndex(filepath)
         shell.analyze(changedFilesIndex)
 
+        indicator.updateText("Infer: Finishing...")
         val inferReport = ReportProducer.produceInferReport(projectPath)
-        val filename = file.canonicalPath!!.replace(projectPath + File.separator, "")
+        val filename = file.canonicalPath!!.toProjectRelativePath(projectPath)
         pluginSettings.aggregatedInferReport.updateForFile(
             filename,
             inferReport.violationsByFile.getOrDefault(filename, listOf())
@@ -110,10 +114,5 @@ class InferRunnerImpl(
     private fun deleteRacerdResults() {
         val racerdDir = File(projectPath + File.separator + "infer-out", "racerd")
         if (racerdDir.exists()) racerdDir.deleteRecursively()
-    }
-
-    private fun ProgressIndicator?.updateText(newText: String) {
-        val progressIndicator = this ?: ProgressIndicatorProvider.getGlobalProgressIndicator()
-        progressIndicator?.apply { text = newText  }
     }
 }

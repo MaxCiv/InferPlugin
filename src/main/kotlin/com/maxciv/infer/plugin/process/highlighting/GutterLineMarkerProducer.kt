@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.psi.PsiElement
 import com.maxciv.infer.plugin.data.report.InferViolation
-import com.maxciv.infer.plugin.ui.InferIcons
+import icons.InferIcons
 
 /**
  * @author maxim.oleynik

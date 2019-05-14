@@ -24,10 +24,8 @@ class InferPluginState(project: Project) : PersistentStateComponent<InferPluginS
         return pluginSettings
     }
 
-    override fun loadState(state: InferPluginSettings?) {
-        if (state != null) {
-            pluginSettings = state
-        }
+    override fun loadState(state: InferPluginSettings) {
+        pluginSettings = state
     }
 
     private fun defaultPluginSettings(project: Project): InferPluginSettings {

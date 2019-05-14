@@ -25,13 +25,13 @@ object AnalysisActions {
             override fun run(indicator: ProgressIndicator) {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runFileAnalysis(
-                        inferProjectComponent.pluginSettings.buildTool,
-                        file,
-                        indicator
-                    )
+                inferProjectComponent.inferRunner.runFileAnalysis(
+                    inferProjectComponent.pluginSettings.buildTool,
+                    file,
+                    indicator
                 )
+                inferProjectComponent.resultsTab.updateCurrentFileTree()
+                inferProjectComponent.resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -53,13 +53,13 @@ object AnalysisActions {
             override fun run(indicator: ProgressIndicator) {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runFileAnalysis(
-                        inferProjectComponent.pluginSettings.buildTool,
-                        virtualFile,
-                        indicator
-                    )
+                inferProjectComponent.inferRunner.runFileAnalysis(
+                    inferProjectComponent.pluginSettings.buildTool,
+                    virtualFile,
+                    indicator
                 )
+                inferProjectComponent.resultsTab.updateCurrentFileTree()
+                inferProjectComponent.resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -81,13 +81,13 @@ object AnalysisActions {
             override fun run(indicator: ProgressIndicator) {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                project.getComponent(InferProjectComponent::class.java).resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runModuleAnalysis(
-                        inferProjectComponent.pluginSettings.buildTool,
-                        virtualFile,
-                        indicator
-                    )
+                inferProjectComponent.inferRunner.runModuleAnalysis(
+                    inferProjectComponent.pluginSettings.buildTool,
+                    virtualFile,
+                    indicator
                 )
+                inferProjectComponent.resultsTab.updateCurrentFileTree()
+                inferProjectComponent.resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -106,12 +106,12 @@ object AnalysisActions {
             override fun run(indicator: ProgressIndicator) {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.resultsTab.fillTreeFromResult(
-                    inferProjectComponent.inferRunner.runProjectAnalysis(
-                        inferProjectComponent.pluginSettings.buildTool,
-                        indicator
-                    )
+                inferProjectComponent.inferRunner.runProjectAnalysis(
+                    inferProjectComponent.pluginSettings.buildTool,
+                    indicator
                 )
+                inferProjectComponent.resultsTab.updateCurrentFileTree()
+                inferProjectComponent.resultsTab.updateFullReportTree()
                 //TODO норм вывод аргументов по модулям?
                 inferProjectComponent.settingsTab.compilerArgsTextField.text =
                     inferProjectComponent.pluginSettings.projectModules.joinToString(" ")

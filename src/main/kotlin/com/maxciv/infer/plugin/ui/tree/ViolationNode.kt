@@ -2,7 +2,7 @@ package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.ui.SimpleTextAttributes
 import com.maxciv.infer.plugin.data.report.InferViolation
-import com.maxciv.infer.plugin.ui.InferIcons.ICON_VIOLATION
+import icons.InferIcons.ICON_VIOLATION
 
 import javax.swing.tree.DefaultMutableTreeNode
 

@@ -1,6 +1,7 @@
 package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.ui.SimpleTextAttributes
+import icons.InferIcons.ICON_CLASS
 import java.io.File
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -21,7 +22,8 @@ class FileNode(var file: String, var violationsCount: Int) : DefaultMutableTreeN
                 append(className.replace(".java", ""), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
                 append(".java", SimpleTextAttributes.REGULAR_ATTRIBUTES)
             }
-            append(" ($violationsCount violations) ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            if (violationsCount > 0) append(" ($violationsCount violations) ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            icon = ICON_CLASS
         }
     }
 
@@ -31,7 +33,8 @@ class FileNode(var file: String, var violationsCount: Int) : DefaultMutableTreeN
                 append(className.replace(".java", ""), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
                 append(".java", SimpleTextAttributes.REGULAR_ATTRIBUTES)
             }
-            append(" ($violationsCount violations) ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            if (violationsCount > 0) append(" ($violationsCount violations) ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            icon = ICON_CLASS
         }
     }
 }

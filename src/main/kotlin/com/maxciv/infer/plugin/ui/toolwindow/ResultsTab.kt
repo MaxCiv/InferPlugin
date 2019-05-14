@@ -4,23 +4,25 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.fileEditor.FileEditorManagerListener.FILE_EDITOR_MANAGER
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.tabs.TabInfo
+import com.intellij.ui.tabs.impl.JBTabsImpl
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.ActionGroups
 import com.maxciv.infer.plugin.config.InferPluginSettings
-import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.onsave.OnSaveAnalyzeListener
-import com.maxciv.infer.plugin.ui.tree.CellRenderer
-import com.maxciv.infer.plugin.ui.tree.RootNode
-import com.maxciv.infer.plugin.ui.tree.TreeNodeFactory
-import com.maxciv.infer.plugin.ui.tree.ViolationNode
+import com.maxciv.infer.plugin.toProjectRelativePath
+import com.maxciv.infer.plugin.ui.tree.*
+import icons.InferIcons.ICON_FULL_REPORT
+import icons.InferIcons.ICON_REPORT_CURRENT_FILE
 import java.awt.BorderLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -36,10 +38,18 @@ import kotlin.math.max
  */
 class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
-    private val pluginSettings: InferPluginSettings =
-        project.getComponent(InferProjectComponent::class.java).pluginSettings
-    val treeResults: Tree
-    private var rootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
+    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+    private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
+
+    private var currentFilename: String = ""
+
+    private val currentFileTab: TabInfo
+    private val currentFileTreeResults: Tree
+    private var currentFileRootNode: FileNode = TreeNodeFactory.createFileNode("Current file", 0) as FileNode
+
+    private val fullReportTab: TabInfo
+    private val fullReportTreeResults: Tree
+    private var fullReportRootNode: RootNode = TreeNodeFactory.createDefaultRootNode() as RootNode
 
     init {
         val toolWindowActionGroup = ActionManager.getInstance().getAction(ActionGroups.RESULTS_TAB.id) as ActionGroup
@@ -48,26 +58,92 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         toolWindowToolbar.component.isVisible = true
         add(toolWindowToolbar.component, BorderLayout.WEST)
 
-        treeResults = Tree().apply {
-            model = DefaultTreeModel(rootNode)
+        currentFileTreeResults = Tree().apply {
+            model = DefaultTreeModel(currentFileRootNode)
             cellRenderer = CellRenderer()
         }
-        add(JBScrollPane(treeResults), BorderLayout.CENTER)
+        fullReportTreeResults = Tree().apply {
+            model = DefaultTreeModel(fullReportRootNode)
+            cellRenderer = CellRenderer()
+        }
 
-        treeResults.addMouseListener(MouseClickListener())
-        project.getComponent(InferProjectComponent::class.java).resultsTab = this
+        currentFileTab = TabInfo(JBScrollPane(currentFileTreeResults)).apply {
+            text = "Current file"
+            icon = ICON_REPORT_CURRENT_FILE
+        }
+        fullReportTab = TabInfo(JBScrollPane(fullReportTreeResults)).apply {
+            text = "Full report"
+            icon = ICON_FULL_REPORT
+        }
 
-        fillTreeFromResult(pluginSettings.aggregatedInferReport)
+        val tabs = JBTabsImpl(project).apply {
+            addTab(currentFileTab)
+            addTab(fullReportTab)
+        }
+        add(tabs, BorderLayout.CENTER)
+
+        currentFileTreeResults.addMouseListener(CurrentFileMouseClickListener())
+        fullReportTreeResults.addMouseListener(FullReportMouseClickListener())
+        inferProjectComponent.resultsTab = this
+
+        updateFullReportTree()
+        updateCurrentFileTree(true)
+
+        project.messageBus.connect().subscribe(FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
+            override fun selectionChanged(event: FileEditorManagerEvent) {
+                val newFile = event.newFile ?: return
+                val filename = newFile.canonicalPath!!.toProjectRelativePath(project.basePath!!)
+                updateCurrentFileTree(filename)
+            }
+        })
 
         VirtualFileManager.getInstance().addVirtualFileListener(OnSaveAnalyzeListener(project))
     }
 
-    fun fillTreeFromResult(inferReport: InferReport) {
-        rootNode.removeAllChildren()
-        rootNode.inferReport = inferReport
+    fun updateCurrentFileTree(findCurrentFile: Boolean = false) {
+        val filename = if (findCurrentFile) {
+            val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+            val virtualFile = FileDocumentManager.getInstance().getFile(editor.document) ?: return
+            virtualFile.canonicalPath!!.toProjectRelativePath(project.basePath!!)
+        } else currentFilename
 
-        if (inferReport.violationsByFile.isNotEmpty()) {
-            inferReport.violationsByFile.forEach { (file, violations) ->
+        updateCurrentFileTree(filename)
+    }
+
+    fun updateCurrentFileTree(filename: String) {
+        if (!filename.endsWith(".java")) return
+
+        currentFilename = filename
+        currentFileRootNode.removeAllChildren()
+        currentFileRootNode.file = filename
+
+        currentFileTab.text = "Current file"
+        val some = pluginSettings.aggregatedInferReport.violationsByFile.getOrDefault(filename, listOf())
+        some.also {
+                if (it.count() > 0) {
+                    currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.SYNTHETIC_ATTRIBUTES)
+                } else {
+                    currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+                    addNodeToParent(currentFileRootNode, TreeNodeFactory.createNode("All clear!"))
+                }
+            }
+            .forEach { violation ->
+                addNodeToParent(currentFileRootNode, TreeNodeFactory.createNode(violation))
+            }
+        ApplicationManager.getApplication().invokeLater {
+            (currentFileTreeResults.model as DefaultTreeModel).reload()
+            TreeUtil.expandAll(currentFileTreeResults)
+        }
+        DaemonCodeAnalyzer.getInstance(project).restart()
+    }
+
+    //TODO refactor
+    fun updateFullReportTree() {
+        fullReportRootNode.removeAllChildren()
+        fullReportRootNode.inferReport = pluginSettings.aggregatedInferReport
+
+        if (pluginSettings.aggregatedInferReport.violationsByFile.isNotEmpty()) {
+            pluginSettings.aggregatedInferReport.violationsByFile.forEach { (file, violations) ->
                 addNodeToRoot(TreeNodeFactory.createFileNode(file, violations.count())).also { fileNode ->
                     violations.forEach { addNodeToParent(fileNode, TreeNodeFactory.createNode(it)) }
                 }
@@ -75,17 +151,26 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         } else {
             addNodeToRoot(TreeNodeFactory.createNode("No violations found."))
         }
-        ApplicationManager.getApplication().invokeLater { TreeUtil.expandAll(treeResults) }
+        fullReportTab.text = "Full report"
+        if (pluginSettings.aggregatedInferReport.violationsByFile.isNotEmpty()) {
+            fullReportTab.append(
+                " (${pluginSettings.aggregatedInferReport.violationsByFile.count()} files / ${pluginSettings.aggregatedInferReport.getTotalViolationCount()} violations)",
+                SimpleTextAttributes.GRAYED_ATTRIBUTES
+            )
+        }
+        ApplicationManager.getApplication().invokeLater {
+            (fullReportTreeResults.model as DefaultTreeModel).reload()
+            TreeUtil.expandAll(fullReportTreeResults)
+        }
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
     private fun addNodeToRoot(node: DefaultMutableTreeNode): DefaultMutableTreeNode {
-        return addNodeToParent(rootNode, node)
+        return addNodeToParent(fullReportRootNode, node)
     }
 
     private fun addNodeToParent(parent: DefaultMutableTreeNode, node: DefaultMutableTreeNode): DefaultMutableTreeNode {
         parent.add(node)
-        ApplicationManager.getApplication().invokeLater { (treeResults.model as DefaultTreeModel).reload() }
         return node
     }
 
@@ -106,16 +191,47 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
     }
 
-    inner class MouseClickListener : MouseAdapter() {
+    fun collapseFullReport() {
+        ApplicationManager.getApplication().invokeLater {
+            TreeUtil.collapseAll(fullReportTreeResults, 2)
+        }
+    }
+
+    fun expandFullReport() {
+        ApplicationManager.getApplication().invokeLater {
+            TreeUtil.expandAll(fullReportTreeResults)
+        }
+    }
+
+    inner class CurrentFileMouseClickListener : MouseAdapter() {
         //Get the current tree node where the mouse event happened
         private val nodeFromEvent: DefaultMutableTreeNode?
             get() {
-                if (treeResults.selectionPaths == null || treeResults.selectionPaths.isEmpty()) return null
-                return treeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
+                if (currentFileTreeResults.selectionPaths == null || currentFileTreeResults.selectionPaths.isEmpty()) return null
+                return currentFileTreeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
             }
 
         override fun mousePressed(mouseEvent: MouseEvent) {
-            if (nodeFromEvent is ViolationNode && (mouseEvent.clickCount == 2 || pluginSettings.isAutoscrollToSourceEnabled)) {
+            if (nodeFromEvent is ViolationNode
+                && (mouseEvent.clickCount == 2 || pluginSettings.isAutoscrollToSourceEnabled)
+            ) {
+                openEditor(nodeFromEvent as ViolationNode)
+            }
+        }
+    }
+
+    inner class FullReportMouseClickListener : MouseAdapter() {
+        //Get the current tree node where the mouse event happened
+        private val nodeFromEvent: DefaultMutableTreeNode?
+            get() {
+                if (fullReportTreeResults.selectionPaths == null || fullReportTreeResults.selectionPaths.isEmpty()) return null
+                return fullReportTreeResults.selectionPaths[0].lastPathComponent as DefaultMutableTreeNode
+            }
+
+        override fun mousePressed(mouseEvent: MouseEvent) {
+            if (nodeFromEvent is ViolationNode
+                && (mouseEvent.clickCount == 2 || pluginSettings.isAutoscrollToSourceEnabled)
+            ) {
                 openEditor(nodeFromEvent as ViolationNode)
             }
         }

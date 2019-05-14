@@ -2,6 +2,7 @@ package com.maxciv.infer.plugin.ui.tree
 
 import com.intellij.ui.SimpleTextAttributes
 import com.maxciv.infer.plugin.data.report.InferReport
+import icons.InferIcons.ICON_INFER
 
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -17,10 +18,11 @@ class RootNode : DefaultMutableTreeNode(LABEL), TreeNodeData {
         cellRenderer.append(LABEL, SimpleTextAttributes.REGULAR_ATTRIBUTES)
         if (this::inferReport.isInitialized) {
             cellRenderer.append(
-                " (${inferReport.violationsByFile.size} files with violations)",
+                " (${inferReport.violationsByFile.size} files with ${inferReport.getTotalViolationCount()} violations)",
                 SimpleTextAttributes.GRAYED_ATTRIBUTES
             )
         }
+        cellRenderer.icon = ICON_INFER
     }
 
     companion object {

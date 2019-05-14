@@ -27,6 +27,6 @@ compileTestKotlin {
 
 intellij {
     pluginName 'InferPlugin'
-    version '2017.3.5'
+    version '2019.1.1'
     updateSinceUntilBuild false
 }
