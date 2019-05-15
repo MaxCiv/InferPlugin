@@ -120,16 +120,16 @@ object AnalysisActions {
     }
 
     /**
-     * Запустить анализ на всём проекте
+     * Запустить предварительный анализ
      */
-    fun runProjectAnalysis(project: Project) {
+    fun runPreAnalysis(project: Project) {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running......") {
             override fun run(indicator: ProgressIndicator) {
                 if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runProjectAnalysis(
+                inferProjectComponent.inferRunner.runPreAnalysis(
                     inferProjectComponent.pluginSettings.buildTool,
                     indicator
                 )

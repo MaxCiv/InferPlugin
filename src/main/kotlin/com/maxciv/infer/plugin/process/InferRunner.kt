@@ -9,8 +9,8 @@ import com.maxciv.infer.plugin.data.report.InferReport
  */
 interface InferRunner {
 
-    fun runProjectAnalysis(buildTool: BuildTools, indicator: ProgressIndicator? = null): InferReport
-    fun runAllModulesAnalysis(buildTool: BuildTools, indicator: ProgressIndicator? = null): InferReport
+    fun runPreAnalysis(buildTool: BuildTools, indicator: ProgressIndicator? = null): InferReport
+    fun runAllModulesAnalysis(buildTool: BuildTools, indicator: ProgressIndicator? = null, shouldCompile: Boolean = true): InferReport
     fun runModuleAnalysis(buildTool: BuildTools, filepath: String, indicator: ProgressIndicator? = null): InferReport
     fun runFileAnalysis(buildTool: BuildTools, filepathList: List<String>, indicator: ProgressIndicator? = null): InferReport
 }

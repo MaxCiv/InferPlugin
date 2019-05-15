@@ -27,7 +27,7 @@ class InferRunnerImpl(
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
-    override fun runProjectAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport {
+    override fun runPreAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport {
         indicator.updateText("Infer: Cleaning...")
         when (buildTool) {
             BuildTools.MAVEN -> {
@@ -47,18 +47,19 @@ class InferRunnerImpl(
             }
             else -> return InferReport()
         }
-        indicator.updateText("Infer: Analysing...")
-        shell.analyzeAll()
-        indicator.updateText("Infer: Finishing...")
         pluginSettings.projectModules =
             projectModulesParser.getProjectModules(buildTool, pluginSettings.inferWorkingDir).toMutableList()
-        val inferReport = ReportProducer.produceInferReport(projectPath, pluginSettings.inferWorkingDir)
-        pluginSettings.aggregatedInferReport = inferReport
-        return inferReport
+
+        indicator.updateText("Infer: Analysing...")
+        return runAllModulesAnalysis(buildTool, indicator, shouldCompile = false)
     }
 
-    override fun runAllModulesAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport {
-        if (pluginSettings.isCompileOnModuleAnalysisEnabled) {
+    override fun runAllModulesAnalysis(
+        buildTool: BuildTools,
+        indicator: ProgressIndicator?,
+        shouldCompile: Boolean
+    ): InferReport {
+        if (pluginSettings.isCompileOnModuleAnalysisEnabled && shouldCompile) {
             indicator.updateText("Infer: Compiling...")
             when (buildTool) {
                 BuildTools.MAVEN -> shell.mavenCompile()

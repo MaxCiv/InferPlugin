@@ -39,7 +39,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
     val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
 
-    private val runFullAnalysisButton = JButton("Run full analysis")
+    private val runFullAnalysisButton = JButton("Run pre-analysis")
 
     private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
     //endregion
@@ -90,7 +90,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         })
 
         runFullAnalysisButton.addActionListener {
-            AnalysisActions.runProjectAnalysis(project)
+            AnalysisActions.runPreAnalysis(project)
         }
         compileOnModuleAnalysisCheckBox.isSelected = pluginSettings.isCompileOnModuleAnalysisEnabled
         compileOnModuleAnalysisCheckBox.addChangeListener {

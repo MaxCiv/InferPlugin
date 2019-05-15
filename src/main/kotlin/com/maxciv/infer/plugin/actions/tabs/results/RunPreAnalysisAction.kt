@@ -9,10 +9,10 @@ import com.maxciv.infer.plugin.actions.AnalysisActions
  * @author maxim.oleynik
  * @since 24.04.2019
  */
-class RunProjectAnalysisAction : AnAction() {
+class RunPreAnalysisAction : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.getData(DataKeys.PROJECT) ?: return
-        AnalysisActions.runProjectAnalysis(project)
+        AnalysisActions.runPreAnalysis(project)
     }
 }
