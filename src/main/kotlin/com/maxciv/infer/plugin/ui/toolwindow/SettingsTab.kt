@@ -41,6 +41,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     private val runFullAnalysisButton = JButton("Run pre-analysis")
 
+    private val shortClassNamesCheckBox = JCheckBox("Use short class names")
     private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
     private val compileOnlyOneModuleOnModuleAnalysisCheckBox =
         JCheckBox("Compile only current module before Module Analysis")
@@ -93,6 +94,10 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
         runFullAnalysisButton.addActionListener {
             AnalysisActions.runPreAnalysis(project)
+        }
+        shortClassNamesCheckBox.isSelected = pluginSettings.isShortClassNamesEnabled
+        shortClassNamesCheckBox.addChangeListener {
+            pluginSettings.isShortClassNamesEnabled = shortClassNamesCheckBox.isSelected
         }
         compileOnModuleAnalysisCheckBox.isSelected = pluginSettings.isCompileOnModuleAnalysisEnabled
         compileOnModuleAnalysisCheckBox.addChangeListener {
@@ -191,6 +196,12 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         mainPanel.add(
             compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
                 1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            shortClassNamesCheckBox, GridBagConstraints(
+                2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )

@@ -18,6 +18,7 @@ data class InferPluginSettings(
     var isOnSaveAnalyzeEnabled: Boolean = true,
     var isCompileOnModuleAnalysisEnabled: Boolean = false,
     var isCompileOnlyOneModuleOnModuleAnalysisEnabled: Boolean = false,
+    var isShortClassNamesEnabled: Boolean = true,
     var aggregatedInferReport: InferReport = InferReport(),
 
     @Transient val analysisCounter: AtomicInteger = AtomicInteger(0),

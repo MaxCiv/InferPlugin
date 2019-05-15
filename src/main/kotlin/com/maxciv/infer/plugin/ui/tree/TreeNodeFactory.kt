@@ -17,8 +17,8 @@ object TreeNodeFactory {
         }
     }
 
-    fun createFileNode(file: String, violationsCount: Int): DefaultMutableTreeNode {
-        return FileNode(file, violationsCount)
+    fun createFileNode(file: String, violationsCount: Int, isShortClassName: Boolean): DefaultMutableTreeNode {
+        return FileNode(file, violationsCount, isShortClassName)
     }
 
     fun createDefaultRootNode(): DefaultMutableTreeNode {

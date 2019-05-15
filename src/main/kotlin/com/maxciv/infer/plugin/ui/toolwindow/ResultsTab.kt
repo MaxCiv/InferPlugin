@@ -45,7 +45,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     private val currentFileTab: TabInfo
     private val currentFileTreeResults: Tree
-    private var currentFileRootNode: FileNode = TreeNodeFactory.createFileNode("Current file", 0) as FileNode
+    private var currentFileRootNode: FileNode =
+        TreeNodeFactory.createFileNode("Current file", 0, pluginSettings.isShortClassNamesEnabled) as FileNode
 
     private val fullReportTab: TabInfo
     private val fullReportTreeResults: Tree
@@ -116,17 +117,18 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         currentFilename = filename
         currentFileRootNode.removeAllChildren()
         currentFileRootNode.file = filename
+        currentFileRootNode.isShortClassName = pluginSettings.isShortClassNamesEnabled
 
         currentFileTab.text = "Current file"
         val violations = pluginSettings.aggregatedInferReport.violationsByFile.getOrDefault(filename, listOf())
         violations.also {
-                if (it.count() > 0) {
-                    currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.SYNTHETIC_ATTRIBUTES)
-                } else {
-                    currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.GRAYED_ATTRIBUTES)
-                    addNodeToParent(currentFileRootNode, TreeNodeFactory.createNode("All clear!"))
-                }
+            if (it.count() > 0) {
+                currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.SYNTHETIC_ATTRIBUTES)
+            } else {
+                currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+                addNodeToParent(currentFileRootNode, TreeNodeFactory.createNode("All clear!"))
             }
+        }
             .forEach { violation ->
                 addNodeToParent(currentFileRootNode, TreeNodeFactory.createNode(violation))
             }
@@ -143,7 +145,13 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
 
         if (pluginSettings.aggregatedInferReport.violationsByFile.isNotEmpty()) {
             pluginSettings.aggregatedInferReport.violationsByFile.forEach { (file, violations) ->
-                addNodeToRoot(TreeNodeFactory.createFileNode(file, violations.count())).also { fileNode ->
+                addNodeToRoot(
+                    TreeNodeFactory.createFileNode(
+                        file,
+                        violations.count(),
+                        pluginSettings.isShortClassNamesEnabled
+                    )
+                ).also { fileNode ->
                     violations.forEach { addNodeToParent(fileNode, TreeNodeFactory.createNode(it)) }
                 }
             }

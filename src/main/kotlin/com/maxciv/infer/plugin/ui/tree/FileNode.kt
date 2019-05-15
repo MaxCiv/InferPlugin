@@ -9,10 +9,14 @@ import javax.swing.tree.DefaultMutableTreeNode
  * @author maxim.oleynik
  * @since 01.12.2018
  */
-class FileNode(var file: String, var violationsCount: Int) : DefaultMutableTreeNode(), TreeNodeData {
+class FileNode(
+    var file: String,
+    var violationsCount: Int,
+    var isShortClassName: Boolean
+) : DefaultMutableTreeNode(), TreeNodeData {
 
     override fun render(cellRenderer: CellRenderer) {
-        shortFilePath(cellRenderer)
+        if (isShortClassName) shortFilePath(cellRenderer) else fullFilePath(cellRenderer)
     }
 
     private fun fullFilePath(cellRenderer: CellRenderer) {
