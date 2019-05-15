@@ -13,9 +13,10 @@ class Shell(
     private val shellCommandExecutor: ShellCommandExecutor,
     private val inferPath: String
 ) {
-    fun javac(filename: String, compilerArgs: List<String>): CommandResult {
+    fun javac(filenames: List<String>, compilerArgs: List<String>): CommandResult {
         return shellCommandExecutor.execute(
-            listOf(inferPath, "--no-progress-bar", "--reactive", "capture", "--", "javac", filename)
+            listOf(inferPath, "--no-progress-bar", "--reactive", "capture", "--", "javac")
+                .plus(filenames)
                 .plus(compilerArgs)
         )
     }
@@ -25,6 +26,8 @@ class Shell(
             listOf(inferPath, "--no-progress-bar", "analyze", "--changed-files-index", changedFilesIndex.canonicalPath)
         )
     }
+
+//    "--results-dir"
 
     fun analyzeClassFiles(projectModule: ProjectModule): CommandResult {
         return shellCommandExecutor.execute(

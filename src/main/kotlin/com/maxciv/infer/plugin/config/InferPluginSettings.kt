@@ -18,5 +18,7 @@ data class InferPluginSettings(
     var isCompileOnModuleAnalysisEnabled: Boolean = false,
     var aggregatedInferReport: InferReport = InferReport(),
 
-    @Transient val analysisCounter: AtomicInteger = AtomicInteger(0)
+    @Transient val analysisCounter: AtomicInteger = AtomicInteger(0),
+    @Transient var lastAnalysisTime: Long = 0,
+    @Transient val filesToAnalyse: MutableList<String> = mutableListOf()
 )

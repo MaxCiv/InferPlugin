@@ -12,12 +12,8 @@ import com.maxciv.infer.plugin.toProjectRelativePath
 data class InferReport(
     var violationsByFile: MutableMap<String, List<InferViolation>> = mutableMapOf()
 ) {
-    fun updateForFile(filename: String, violations: List<InferViolation>) {
-        if (violations.isEmpty()) {
-            violationsByFile.remove(filename)
-        } else {
-            violationsByFile[filename] = violations
-        }
+    fun getTotalViolationCount(): Int {
+        return violationsByFile.values.sumBy { it.count() }
     }
 
     fun updateForModuleReport(inferReport: InferReport, projectModule: ProjectModule, projectPath: String) {
@@ -28,7 +24,18 @@ data class InferReport(
             }
     }
 
-    fun getTotalViolationCount(): Int {
-        return violationsByFile.values.sumBy { it.count() }
+    fun updateForFiles(filenames: List<String>, inferReport: InferReport, projectPath: String) {
+        filenames.map { it.toProjectRelativePath(projectPath) }.forEach { filename ->
+            val violations = inferReport.violationsByFile.getOrDefault(filename, listOf())
+            updateForFile(filename, violations)
+        }
+    }
+
+    private fun updateForFile(filename: String, violations: List<InferViolation>) {
+        if (violations.isEmpty()) {
+            violationsByFile.remove(filename)
+        } else {
+            violationsByFile[filename] = violations
+        }
     }
 }

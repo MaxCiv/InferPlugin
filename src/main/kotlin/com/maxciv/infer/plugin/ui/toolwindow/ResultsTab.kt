@@ -118,8 +118,8 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         currentFileRootNode.file = filename
 
         currentFileTab.text = "Current file"
-        val some = pluginSettings.aggregatedInferReport.violationsByFile.getOrDefault(filename, listOf())
-        some.also {
+        val violations = pluginSettings.aggregatedInferReport.violationsByFile.getOrDefault(filename, listOf())
+        violations.also {
                 if (it.count() > 0) {
                     currentFileTab.append(" (${it.count()} violations)", SimpleTextAttributes.SYNTHETIC_ATTRIBUTES)
                 } else {
@@ -137,7 +137,6 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
-    //TODO refactor
     fun updateFullReportTree() {
         fullReportRootNode.removeAllChildren()
         fullReportRootNode.inferReport = pluginSettings.aggregatedInferReport

@@ -9,9 +9,15 @@ import java.io.File
  * @since 14.05.2019
  */
 
-fun ProgressIndicator?.updateText(newText: String) {
+fun ProgressIndicator?.updateText(newText: String, progress: Double = -1.0) {
     val progressIndicator = this ?: ProgressIndicatorProvider.getGlobalProgressIndicator()
-    progressIndicator?.apply { text = newText  }
+    progressIndicator?.apply {
+        text = newText
+        if (progress in 0.0..1.0) {
+            isIndeterminate = false
+            fraction = progress
+        }
+    }
 }
 
 /**

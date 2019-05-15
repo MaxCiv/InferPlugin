@@ -41,7 +41,7 @@
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"
                     text="Run analysis on current module, corresponding to opened file"
                     description="Run analysis on current module, corresponding to opened file"
-                    icon="AllIcons.RunConfigurations.TestState.Run_run"/>
+                    icon="AllIcons.RunConfigurations.TestState.Green2"/>
 
             <action id="RunAllModulesAnalysisAction"
                     class="com.maxciv.infer.plugin.actions.tabs.results.RunAllModulesAnalysisAction"

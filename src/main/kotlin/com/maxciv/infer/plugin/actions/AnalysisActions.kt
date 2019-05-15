@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
 import com.maxciv.infer.plugin.InferProjectComponent
 
 /**
@@ -18,7 +17,7 @@ object AnalysisActions {
     /**
      * Запустить OnSave анализ
      */
-    fun runOnSaveAnalysis(project: Project, file: VirtualFile) {
+    fun runOnSaveAnalysis(project: Project, filepathList: List<String>) {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
@@ -27,7 +26,7 @@ object AnalysisActions {
                 indicator.isIndeterminate = true
                 inferProjectComponent.inferRunner.runFileAnalysis(
                     inferProjectComponent.pluginSettings.buildTool,
-                    file,
+                    filepathList,
                     indicator
                 )
                 inferProjectComponent.resultsTab.updateCurrentFileTree()
@@ -55,7 +54,7 @@ object AnalysisActions {
                 indicator.isIndeterminate = true
                 inferProjectComponent.inferRunner.runFileAnalysis(
                     inferProjectComponent.pluginSettings.buildTool,
-                    virtualFile,
+                    listOf(virtualFile.canonicalPath!!),
                     indicator
                 )
                 inferProjectComponent.resultsTab.updateCurrentFileTree()
@@ -83,7 +82,7 @@ object AnalysisActions {
                 indicator.isIndeterminate = true
                 inferProjectComponent.inferRunner.runModuleAnalysis(
                     inferProjectComponent.pluginSettings.buildTool,
-                    virtualFile,
+                    virtualFile.canonicalPath!!,
                     indicator
                 )
                 inferProjectComponent.resultsTab.updateCurrentFileTree()
