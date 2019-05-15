@@ -36,4 +36,8 @@ object ProjectModuleUtils {
         // Если подходящего модуля не нашлось, возвращаем пустой
         return if (possibleModule.isNotEmpty()) possibleModule[0] else ProjectModule(listOf(), listOf())
     }
+
+    fun getInferWorkingDirForModule(inferWorkingDir: String, module: ProjectModule): String {
+        return inferWorkingDir + "_" + module.hashCode()
+    }
 }

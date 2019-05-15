@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VirtualFileEvent
 import com.intellij.openapi.vfs.VirtualFileListener
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.AnalysisActions
+import com.maxciv.infer.plugin.config.InferPluginSettings
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,30 +18,33 @@ import kotlinx.coroutines.launch
  */
 class OnSaveAnalyzeListener(
     private val project: Project,
-    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java),
+    private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
 ) : VirtualFileListener {
 
     private val waitTime = 200L
 
     override fun contentsChanged(event: VirtualFileEvent) {
-        if (inferProjectComponent.pluginSettings.isOnSaveAnalyzeEnabled
+        if (pluginSettings.isOnSaveAnalyzeEnabled
             && event.isFromSave
             && event.fileName.endsWith(".java")
         ) {
             val currentTimeMillis = System.currentTimeMillis()
             if (isTimeToRunAnalysis(currentTimeMillis)) {
-                inferProjectComponent.pluginSettings.lastAnalysisTime = currentTimeMillis
+                pluginSettings.lastAnalysisTime = currentTimeMillis
                 GlobalScope.launch {
-                    delay(waitTime)
-                    val files = inferProjectComponent.pluginSettings.filesToAnalyse.toList()
-                    inferProjectComponent.pluginSettings.filesToAnalyse.removeAll(files)
+                    do {
+                        delay(waitTime)
+                    } while (pluginSettings.analysisCounter.get() != 0)
+                    val files = pluginSettings.filesToAnalyse.toList()
+                    pluginSettings.filesToAnalyse.removeAll(files)
                     AnalysisActions.runOnSaveAnalysis(project, files)
                 }
             }
-            inferProjectComponent.pluginSettings.filesToAnalyse.add(event.file.canonicalPath!!)
+            pluginSettings.filesToAnalyse.add(event.file.canonicalPath!!)
         }
     }
 
     private fun isTimeToRunAnalysis(currentTimeMillis: Long): Boolean =
-        currentTimeMillis - inferProjectComponent.pluginSettings.lastAnalysisTime > waitTime
+        currentTimeMillis - pluginSettings.lastAnalysisTime > waitTime
 }

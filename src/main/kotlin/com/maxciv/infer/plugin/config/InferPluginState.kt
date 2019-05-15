@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.Project
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.process.DefineBuildTool
+import java.io.File
 
 /**
  * @author maxim.oleynik
@@ -31,6 +32,7 @@ class InferPluginState(project: Project) : PersistentStateComponent<InferPluginS
     private fun defaultPluginSettings(project: Project): InferPluginSettings {
         val defaultSettings = InferPluginSettings()
         defaultSettings.buildTool = DefineBuildTool.defineFor(project)
+        defaultSettings.inferWorkingDir = project.basePath!! + File.separator + ".idea" + File.separator + "infer-out"
         return defaultSettings
     }
 }

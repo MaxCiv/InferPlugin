@@ -9,5 +9,5 @@ import com.maxciv.infer.plugin.process.BuildTools
  */
 interface ProjectModulesParser {
 
-    fun getProjectModules(buildTool: BuildTools, projectPath: String): List<ProjectModule>
+    fun getProjectModules(buildTool: BuildTools, inferWorkingDir: String): List<ProjectModule>
 }

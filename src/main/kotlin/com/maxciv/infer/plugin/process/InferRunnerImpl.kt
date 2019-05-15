@@ -4,6 +4,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.data.report.InferReport
+import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
 import com.maxciv.infer.plugin.process.shell.Shell
@@ -22,7 +23,7 @@ class InferRunnerImpl(
 
     private val shell: Shell = Shell(
         ShellCommandExecutorImpl(File(projectPath)),
-        pluginSettings.inferPath
+        pluginSettings
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
@@ -49,8 +50,9 @@ class InferRunnerImpl(
         indicator.updateText("Infer: Analysing...")
         shell.analyzeAll()
         indicator.updateText("Infer: Finishing...")
-        pluginSettings.projectModules = projectModulesParser.getProjectModules(buildTool, projectPath).toMutableList()
-        val inferReport = ReportProducer.produceInferReport(projectPath)
+        pluginSettings.projectModules =
+            projectModulesParser.getProjectModules(buildTool, pluginSettings.inferWorkingDir).toMutableList()
+        val inferReport = ReportProducer.produceInferReport(projectPath, pluginSettings.inferWorkingDir)
         pluginSettings.aggregatedInferReport = inferReport
         return inferReport
     }
@@ -72,7 +74,9 @@ class InferRunnerImpl(
                 (index + 1) / pluginSettings.projectModules.count().toDouble()
             )
             shell.analyzeClassFiles(module)
-            val inferReport = ReportProducer.produceInferReport(projectPath)
+            val inferReport = ReportProducer.produceInferReport(
+                projectPath, getInferWorkingDirForModule(pluginSettings.inferWorkingDir, module)
+            )
             pluginSettings.aggregatedInferReport.updateForModuleReport(inferReport, module, projectPath)
         }
         return pluginSettings.aggregatedInferReport
@@ -99,7 +103,10 @@ class InferRunnerImpl(
         indicator.updateText("Infer: Analysing...")
         shell.analyzeClassFiles(currentModule)
         indicator.updateText("Infer: Finishing...")
-        val inferReport = ReportProducer.produceInferReport(projectPath)
+        val inferReport = ReportProducer.produceInferReport(
+            projectPath,
+            getInferWorkingDirForModule(pluginSettings.inferWorkingDir, currentModule)
+        )
         pluginSettings.aggregatedInferReport.updateForModuleReport(inferReport, currentModule, projectPath)
         return inferReport
     }
@@ -125,14 +132,17 @@ class InferRunnerImpl(
             if (currentModule.compilerArgs.isEmpty()) return@forEach
 
             indicator.updateText("Infer: Capturing...")
-            deleteRacerdResults()
-            shell.javac(fileList, currentModule.compilerArgs)
+            deleteRacerdResults(currentModule)
+            shell.javac(fileList, currentModule)
 
             indicator.updateText("Infer: Analysing...")
             val changedFilesIndex = createChangedFilesIndex(fileList)
-            shell.analyze(changedFilesIndex)
+            shell.analyze(changedFilesIndex, currentModule)
 
-            val inferReport = ReportProducer.produceInferReport(projectPath)
+            val inferReport = ReportProducer.produceInferReport(
+                projectPath,
+                getInferWorkingDirForModule(pluginSettings.inferWorkingDir, currentModule)
+            )
             pluginSettings.aggregatedInferReport.updateForFiles(fileList, inferReport, projectPath)
         }
         return pluginSettings.aggregatedInferReport
@@ -145,8 +155,8 @@ class InferRunnerImpl(
         }
     }
 
-    private fun deleteRacerdResults() {
-        val racerdDir = File(projectPath + File.separator + "infer-out", "racerd")
+    private fun deleteRacerdResults(module: ProjectModule) {
+        val racerdDir = File(getInferWorkingDirForModule(pluginSettings.inferWorkingDir, module), "racerd")
         if (racerdDir.exists()) racerdDir.deleteRecursively()
     }
 }

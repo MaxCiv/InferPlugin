@@ -1,6 +1,8 @@
 package com.maxciv.infer.plugin.process.shell
 
+import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
+import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
 import java.io.File
 
 /**
@@ -11,28 +13,43 @@ import java.io.File
  */
 class Shell(
     private val shellCommandExecutor: ShellCommandExecutor,
-    private val inferPath: String
+    private val pluginSettings: InferPluginSettings
 ) {
-    fun javac(filenames: List<String>, compilerArgs: List<String>): CommandResult {
+    fun javac(filenames: List<String>, projectModule: ProjectModule): CommandResult {
         return shellCommandExecutor.execute(
-            listOf(inferPath, "--no-progress-bar", "--reactive", "capture", "--", "javac")
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", getInferWorkingDirForModule(pluginSettings.inferWorkingDir, projectModule),
+                "--no-progress-bar",
+                "--reactive",
+                "capture",
+                "--",
+                "javac"
+            )
                 .plus(filenames)
-                .plus(compilerArgs)
+                .plus(projectModule.compilerArgs)
         )
     }
 
-    fun analyze(changedFilesIndex: File): CommandResult {
+    fun analyze(changedFilesIndex: File, projectModule: ProjectModule): CommandResult {
         return shellCommandExecutor.execute(
-            listOf(inferPath, "--no-progress-bar", "analyze", "--changed-files-index", changedFilesIndex.canonicalPath)
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", getInferWorkingDirForModule(pluginSettings.inferWorkingDir, projectModule),
+                "--no-progress-bar",
+                "analyze",
+                "--changed-files-index", changedFilesIndex.canonicalPath
+            )
         )
     }
-
-//    "--results-dir"
 
     fun analyzeClassFiles(projectModule: ProjectModule): CommandResult {
         return shellCommandExecutor.execute(
             listOf(
-                inferPath, "--no-progress-bar", "--classpath", projectModule.getClasspath(),
+                pluginSettings.inferPath,
+                "--results-dir", getInferWorkingDirForModule(pluginSettings.inferWorkingDir, projectModule),
+                "--no-progress-bar",
+                "--classpath", projectModule.getClasspath(),
                 "--sourcepath", projectModule.getSourcePath().split(":").first().trim(),
                 "--generated-classes", projectModule.getGeneratedClasses()
             )
@@ -40,7 +57,14 @@ class Shell(
     }
 
     fun analyzeAll(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "analyze"))
+        return shellCommandExecutor.execute(
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", pluginSettings.inferWorkingDir,
+                "--no-progress-bar",
+                "analyze"
+            )
+        )
     }
 
     fun mavenClean(): CommandResult {
@@ -52,7 +76,16 @@ class Shell(
     }
 
     fun mavenCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "mvn", "compile"))
+        return shellCommandExecutor.execute(
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", pluginSettings.inferWorkingDir,
+                "--no-progress-bar",
+                "capture",
+                "--",
+                "mvn", "compile"
+            )
+        )
     }
 
     fun gradlewClean(): CommandResult {
@@ -64,7 +97,16 @@ class Shell(
     }
 
     fun gradlewCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "./gradlew", "build"))
+        return shellCommandExecutor.execute(
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", pluginSettings.inferWorkingDir,
+                "--no-progress-bar",
+                "capture",
+                "--",
+                "./gradlew", "build"
+            )
+        )
     }
 
     fun gradleClean(): CommandResult {
@@ -76,6 +118,15 @@ class Shell(
     }
 
     fun gradleCapture(): CommandResult {
-        return shellCommandExecutor.execute(listOf(inferPath, "--no-progress-bar", "capture", "--", "gradle", "build"))
+        return shellCommandExecutor.execute(
+            listOf(
+                pluginSettings.inferPath,
+                "--results-dir", pluginSettings.inferWorkingDir,
+                "--no-progress-bar",
+                "capture",
+                "--",
+                "gradle", "build"
+            )
+        )
     }
 }

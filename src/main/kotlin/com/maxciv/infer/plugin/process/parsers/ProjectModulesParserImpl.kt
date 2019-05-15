@@ -13,8 +13,8 @@ import java.io.Reader
  */
 class ProjectModulesParserImpl : ProjectModulesParser {
 
-    override fun getProjectModules(buildTool: BuildTools, projectPath: String): List<ProjectModule> {
-        val logsFile = File("$projectPath/infer-out/logs")
+    override fun getProjectModules(buildTool: BuildTools, inferWorkingDir: String): List<ProjectModule> {
+        val logsFile = File("$inferWorkingDir/logs")
         if (!logsFile.exists()) return listOf()
 
         val logLines = BufferedReader(FileReader(logsFile) as Reader?).readText()

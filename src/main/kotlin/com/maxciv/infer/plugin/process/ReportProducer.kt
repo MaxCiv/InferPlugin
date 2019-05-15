@@ -15,11 +15,11 @@ object ReportProducer {
 
     private val GSON = Gson()
 
-    fun produceInferReport(projectPath: String): InferReport {
-        if (!File("$projectPath/infer-out/report.json").exists()) return InferReport()
+    fun produceInferReport(projectPath: String, inferWorkingDirForModule: String): InferReport {
+        if (!File("$inferWorkingDirForModule/report.json").exists()) return InferReport()
 
         val collectionType = object : TypeToken<Collection<InferViolation>>() {}.type
-        val violations = GSON.fromJson<Collection<InferViolation>>(FileReader("$projectPath/infer-out/report.json"), collectionType)
+        val violations = GSON.fromJson<Collection<InferViolation>>(FileReader("$inferWorkingDirForModule/report.json"), collectionType)
         return InferReport(violations.groupBy { it.file }.toMutableMap())
             .also { fillViolationOffsets(it, projectPath) }
     }

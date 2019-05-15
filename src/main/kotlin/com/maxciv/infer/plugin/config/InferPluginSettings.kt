@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 data class InferPluginSettings(
     var inferPath: String = "infer",
+    var inferWorkingDir: String = "./.idea/infer-out",
     var buildTool: BuildTools = BuildTools.DEFAULT,
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,
