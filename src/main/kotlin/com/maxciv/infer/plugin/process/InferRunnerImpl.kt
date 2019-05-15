@@ -9,6 +9,7 @@ import com.maxciv.infer.plugin.process.ProjectModuleUtils.getIdeaModuleForFile
 import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
+import com.maxciv.infer.plugin.process.report.ReportProducer
 import com.maxciv.infer.plugin.process.shell.Shell
 import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorImpl
 import com.maxciv.infer.plugin.updateText

@@ -10,6 +10,8 @@ import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.AnalysisActions
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.process.BuildTools
+import com.maxciv.infer.plugin.process.report.ReportExporter
+import com.maxciv.infer.plugin.process.report.ReportImporter
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -41,14 +43,18 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     private val runFullAnalysisButton = JButton("Run pre-analysis")
 
+    private val importExportLabel = JLabel("Report:", SwingConstants.LEFT)
+    private val importReportButton = JButton("Import")
+    private val exportReportButton = JButton("Export")
+
     private val shortClassNamesCheckBox = JCheckBox("Use short class names")
     private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
     private val compileOnlyOneModuleOnModuleAnalysisCheckBox =
         JCheckBox("Compile only current module before Module Analysis")
     //endregion
 
-    private val pluginSettings: InferPluginSettings =
-        project.getComponent(InferProjectComponent::class.java).pluginSettings
+    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+    private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
 
     init {
         buildToolComboBox = createBuildToolComboBox()
@@ -91,6 +97,15 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 pluginSettings.inferWorkingDir = inferWorkingDirTextField.text
             }
         })
+
+        importReportButton.addActionListener {
+            ReportImporter.importReport(project, pluginSettings)
+            inferProjectComponent.resultsTab.updateFullReportTree()
+            inferProjectComponent.resultsTab.updateCurrentFileTree()
+        }
+        exportReportButton.addActionListener {
+            ReportExporter.exportReport(project.basePath!!, pluginSettings.aggregatedInferReport)
+        }
 
         runFullAnalysisButton.addActionListener {
             AnalysisActions.runPreAnalysis(project)
@@ -221,6 +236,25 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         mainPanel.add(
             chooseInferWorkingDirButton, GridBagConstraints(
                 2, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+
+        mainPanel.add(
+            importExportLabel, GridBagConstraints(
+                0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            importReportButton, GridBagConstraints(
+                1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            exportReportButton, GridBagConstraints(
+                2, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )

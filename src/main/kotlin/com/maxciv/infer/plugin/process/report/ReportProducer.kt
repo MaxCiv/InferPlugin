@@ -1,4 +1,4 @@
-package com.maxciv.infer.plugin.process
+package com.maxciv.infer.plugin.process.report
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
