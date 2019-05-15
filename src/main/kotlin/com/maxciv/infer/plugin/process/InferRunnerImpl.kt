@@ -1,9 +1,11 @@
 package com.maxciv.infer.plugin.process
 
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.data.report.InferReport
+import com.maxciv.infer.plugin.process.ProjectModuleUtils.getIdeaModuleForFile
 import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
@@ -17,8 +19,9 @@ import java.io.File
  * @since 30.11.2018
  */
 class InferRunnerImpl(
-    private val projectPath: String,
-    private val pluginSettings: InferPluginSettings
+    private val project: Project,
+    private val pluginSettings: InferPluginSettings,
+    private val projectPath: String = project.basePath!!
 ) : InferRunner {
 
     private val shell: Shell = Shell(
@@ -93,11 +96,21 @@ class InferRunnerImpl(
 
         if (pluginSettings.isCompileOnModuleAnalysisEnabled) {
             indicator.updateText("Infer: Compiling...")
-            when (buildTool) {
-                BuildTools.MAVEN -> shell.mavenCompile()
-                BuildTools.GRADLEW -> shell.gradlewCompile()
-                BuildTools.GRADLE -> shell.gradleCompile()
-                else -> return InferReport()
+            val module = getIdeaModuleForFile(filepath, project)
+            if (module != null && pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled) {
+                when (buildTool) {
+                    BuildTools.MAVEN -> shell.mavenCompileModule(module.name)
+                    BuildTools.GRADLEW -> shell.gradlewCompileModule(module.name)
+                    BuildTools.GRADLE -> shell.gradleCompileModule(module.name)
+                    else -> return InferReport()
+                }
+            } else {
+                when (buildTool) {
+                    BuildTools.MAVEN -> shell.mavenCompile()
+                    BuildTools.GRADLEW -> shell.gradlewCompile()
+                    BuildTools.GRADLE -> shell.gradleCompile()
+                    else -> return InferReport()
+                }
             }
         }
 

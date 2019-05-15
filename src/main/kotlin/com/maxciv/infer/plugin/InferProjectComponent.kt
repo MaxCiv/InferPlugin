@@ -16,7 +16,7 @@ import com.maxciv.infer.plugin.ui.toolwindow.SettingsTab
  */
 class InferProjectComponent(project: Project) : ProjectComponent {
     val pluginSettings: InferPluginSettings = ServiceManager.getService(project, InferPluginState::class.java).state!!
-    val inferRunner: InferRunner = InferRunnerImpl(project.basePath!!, pluginSettings)
+    val inferRunner: InferRunner = InferRunnerImpl(project, pluginSettings)
 
     lateinit var resultsTab: ResultsTab
     lateinit var settingsTab: SettingsTab

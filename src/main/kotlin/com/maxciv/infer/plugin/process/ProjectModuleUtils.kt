@@ -1,5 +1,9 @@
 package com.maxciv.infer.plugin.process
 
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtil
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.maxciv.infer.plugin.data.ProjectModule
 import java.io.File
 
@@ -39,5 +43,9 @@ object ProjectModuleUtils {
 
     fun getInferWorkingDirForModule(inferWorkingDir: String, module: ProjectModule): String {
         return inferWorkingDir + "_" + module.hashCode()
+    }
+
+    fun getIdeaModuleForFile(filename: String, project: Project): Module? {
+        return ModuleUtil.findModuleForFile(LocalFileSystem.getInstance().findFileByIoFile(File(filename))!!, project)
     }
 }

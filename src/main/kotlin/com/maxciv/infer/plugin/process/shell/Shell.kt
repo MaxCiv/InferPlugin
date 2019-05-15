@@ -75,6 +75,10 @@ class Shell(
         return shellCommandExecutor.execute(listOf("mvn", "compile"))
     }
 
+    fun mavenCompileModule(moduleName: String): CommandResult {
+        return shellCommandExecutor.execute(listOf("mvn", "compile", "-pl", moduleName))
+    }
+
     fun mavenCapture(): CommandResult {
         return shellCommandExecutor.execute(
             listOf(
@@ -96,6 +100,10 @@ class Shell(
         return shellCommandExecutor.execute(listOf("./gradlew", "build"))
     }
 
+    fun gradlewCompileModule(moduleName: String): CommandResult {
+        return shellCommandExecutor.execute(listOf("./gradlew", ":$moduleName:build"))
+    }
+
     fun gradlewCapture(): CommandResult {
         return shellCommandExecutor.execute(
             listOf(
@@ -115,6 +123,10 @@ class Shell(
 
     fun gradleCompile(): CommandResult {
         return shellCommandExecutor.execute(listOf("gradle", "build"))
+    }
+
+    fun gradleCompileModule(moduleName: String): CommandResult {
+        return shellCommandExecutor.execute(listOf("gradle", ":$moduleName:build"))
     }
 
     fun gradleCapture(): CommandResult {

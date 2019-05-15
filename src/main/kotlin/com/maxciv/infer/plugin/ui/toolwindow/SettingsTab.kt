@@ -42,6 +42,8 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val runFullAnalysisButton = JButton("Run pre-analysis")
 
     private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
+    private val compileOnlyOneModuleOnModuleAnalysisCheckBox =
+        JCheckBox("Compile only current module before Module Analysis")
     //endregion
 
     private val pluginSettings: InferPluginSettings =
@@ -96,15 +98,29 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         compileOnModuleAnalysisCheckBox.addChangeListener {
             pluginSettings.isCompileOnModuleAnalysisEnabled = compileOnModuleAnalysisCheckBox.isSelected
         }
+        compileOnlyOneModuleOnModuleAnalysisCheckBox.isSelected =
+            pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled
+        compileOnlyOneModuleOnModuleAnalysisCheckBox.addChangeListener {
+            pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled =
+                compileOnlyOneModuleOnModuleAnalysisCheckBox.isSelected
+        }
         chooseInferPathButton.addActionListener {
             val descriptor = FileChooserDescriptor(true, false, false, false, false, false)
-            val file = FileChooser.chooseFile(descriptor, project, LocalFileSystem.getInstance().findFileByIoFile(File(pluginSettings.inferPath))) ?: return@addActionListener
+            val file = FileChooser.chooseFile(
+                descriptor,
+                project,
+                LocalFileSystem.getInstance().findFileByIoFile(File(pluginSettings.inferPath))
+            ) ?: return@addActionListener
             pluginSettings.inferPath = file.canonicalPath!!
             inferPathTextField.text = file.canonicalPath!!
         }
         chooseInferWorkingDirButton.addActionListener {
             val descriptor = FileChooserDescriptor(false, true, false, false, false, false)
-            val file = FileChooser.chooseFile(descriptor, project, LocalFileSystem.getInstance().findFileByIoFile(File(pluginSettings.inferWorkingDir))) ?: return@addActionListener
+            val file = FileChooser.chooseFile(
+                descriptor,
+                project,
+                LocalFileSystem.getInstance().findFileByIoFile(File(pluginSettings.inferWorkingDir))
+            ) ?: return@addActionListener
             pluginSettings.inferWorkingDir = file.canonicalPath!!
             inferWorkingDirTextField.text = file.canonicalPath!!
         }
@@ -169,6 +185,12 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         mainPanel.add(
             compileOnModuleAnalysisCheckBox, GridBagConstraints(
                 0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
+                1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
