@@ -16,6 +16,9 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     compile "com.google.code.gson:gson:2.8.5"
     compile "org.junit.jupiter:junit-jupiter-api:5.4.0"
+    compile 'org.kohsuke:github-api:1.95'
+    compile 'commons-io:commons-io:2.6'
+    compile 'org.rauschig:jarchivelib:0.7.1'
 }
 
 compileKotlin {

@@ -74,8 +74,9 @@ class InferRunnerImpl(
         }
 
         pluginSettings.projectModules.forEachIndexed { index, module ->
+            val moduleName = getIdeaModuleForFile(module.sourceFiles.getOrElse(0) {"some"}, project)?.name ?: ""
             indicator.updateText(
-                "Infer: Analysing ${index + 1}...",
+                "Infer: Analysing $moduleName (${index + 1})...",
                 (index + 1) / pluginSettings.projectModules.count().toDouble()
             )
             shell.analyzeClassFiles(module)

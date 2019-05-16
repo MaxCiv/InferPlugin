@@ -5,7 +5,7 @@
 
     <description>IntelliJ Platform plugin for Facebook Infer</description>
 
-    <idea-version since-build="173.0"/>
+    <idea-version since-build="191.0"/>
 
     <project-components>
         <component>

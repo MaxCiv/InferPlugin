@@ -10,8 +10,17 @@ import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.AnalysisActions
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.process.BuildTools
+import com.maxciv.infer.plugin.process.InferDownloader
+import com.maxciv.infer.plugin.process.OperationSystems
 import com.maxciv.infer.plugin.process.report.ReportExporter
 import com.maxciv.infer.plugin.process.report.ReportImporter
+import icons.InferIcons.ICON_BUILD_TOOLS
+import icons.InferIcons.ICON_DOWNLOAD
+import icons.InferIcons.ICON_FULL_REPORT
+import icons.InferIcons.ICON_INFER
+import icons.InferIcons.ICON_INFER_WORKING_DIR
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -27,37 +36,45 @@ import javax.swing.event.DocumentListener
 class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
     //region UI
-    private val inferPathLabel = JLabel("Infer binaries path", SwingConstants.LEFT)
-    private val inferPathTextField = JTextField("infer", SwingConstants.LEFT)
-    private val chooseInferPathButton = JButton("Choose")
-
-    private val inferWorkingDirLabel = JLabel("Infer working directory", SwingConstants.LEFT)
-    private val inferWorkingDirTextField = JTextField("./infer-out", SwingConstants.LEFT)
-    private val chooseInferWorkingDirButton = JButton("Choose")
-
-    private val buildToolLabel = JLabel("Build tool", SwingConstants.LEFT)
-    private val buildToolComboBox: ComboBox<String>
-
-    private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
-    val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
-
-    private val runFullAnalysisButton = JButton("Run pre-analysis")
-
-    private val importExportLabel = JLabel("Report:", SwingConstants.LEFT)
-    private val importReportButton = JButton("Import")
-    private val exportReportButton = JButton("Export")
-
     private val shortClassNamesCheckBox = JCheckBox("Use short class names")
     private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
     private val compileOnlyOneModuleOnModuleAnalysisCheckBox =
         JCheckBox("Compile only current module before Module Analysis")
+
+    private val buildToolLabel = JLabel("Build tool:", ICON_BUILD_TOOLS, SwingConstants.LEFT)
+    private val buildToolComboBox: ComboBox<String>
+    private val runFullAnalysisButton = JButton("Run pre-analysis")
+
+    private val importExportLabel = JLabel("Report:", ICON_FULL_REPORT, SwingConstants.LEFT)
+    private val importReportButton = JButton("Import")
+    private val exportReportButton = JButton("Export")
+
+    private val inferPathLabel = JLabel("Infer binaries path:", ICON_INFER, SwingConstants.LEFT)
+    private val inferPathTextField = JTextField("infer", SwingConstants.LEFT)
+    private val chooseInferPathButton = JButton("Choose")
+
+    private val inferWorkingDirLabel = JLabel("Infer working directory:", ICON_INFER_WORKING_DIR, SwingConstants.LEFT)
+    private val inferWorkingDirTextField = JTextField("./infer-out", SwingConstants.LEFT)
+    private val chooseInferWorkingDirButton = JButton("Choose")
+
+    private val downloadInferLabel = JLabel("Download Infer:", ICON_DOWNLOAD, SwingConstants.LEFT)
+    private val osComboBox: ComboBox<String>
+    private val inferVersionComboBox: ComboBox<String>
+    private val downloadInferButton = JButton("Download")
+
+    private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
+    val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
     //endregion
 
     private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
     private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
+    private val inferDownloader: InferDownloader = InferDownloader(project)
 
     init {
         buildToolComboBox = createBuildToolComboBox()
+        osComboBox = createOsComboBox()
+        inferVersionComboBox = createInferVersionComboBox()
+
         compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
 
         inferPathTextField.text = pluginSettings.inferPath
@@ -144,6 +161,12 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
             pluginSettings.inferWorkingDir = file.canonicalPath!!
             inferWorkingDirTextField.text = file.canonicalPath!!
         }
+        downloadInferButton.addActionListener {
+            inferDownloader.downloadAndInstall(
+                inferVersionComboBox.selectedItem as String,
+                OperationSystems.valueOfTitle(osComboBox.selectedItem as String)
+            )
+        }
         add(createMainPanel(), BorderLayout.NORTH)
         project.getComponent(InferProjectComponent::class.java).settingsTab = this
     }
@@ -152,20 +175,20 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         val mainPanel = JPanel(GridBagLayout())
 
         mainPanel.add(
-            inferPathLabel, GridBagConstraints(
+            compileOnModuleAnalysisCheckBox, GridBagConstraints(
                 0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        mainPanel.add(
-            inferPathTextField, GridBagConstraints(
-                1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
-            chooseInferPathButton, GridBagConstraints(
-                2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+            compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
+                1, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            shortClassNamesCheckBox, GridBagConstraints(
+                3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -178,45 +201,51 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
         mainPanel.add(
             buildToolComboBox, GridBagConstraints(
-                1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                1, 1, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
             runFullAnalysisButton, GridBagConstraints(
-                2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                3, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
         mainPanel.add(
-            compilerArgsLabel, GridBagConstraints(
+            importExportLabel, GridBagConstraints(
                 0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
-            compilerArgsTextField, GridBagConstraints(
-                1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            importReportButton, GridBagConstraints(
+                1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            exportReportButton, GridBagConstraints(
+                2, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
 
         mainPanel.add(
-            compileOnModuleAnalysisCheckBox, GridBagConstraints(
+            inferPathLabel, GridBagConstraints(
                 0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            inferPathTextField, GridBagConstraints(
+                1, 3, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
-            compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
-                1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        mainPanel.add(
-            shortClassNamesCheckBox, GridBagConstraints(
-                2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+            chooseInferPathButton, GridBagConstraints(
+                3, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -229,37 +258,61 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
         mainPanel.add(
             inferWorkingDirTextField, GridBagConstraints(
-                1, 4, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                1, 4, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
             chooseInferWorkingDirButton, GridBagConstraints(
-                2, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                3, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
         mainPanel.add(
-            importExportLabel, GridBagConstraints(
+            downloadInferLabel, GridBagConstraints(
                 0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
-            importReportButton, GridBagConstraints(
-                1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            osComboBox, GridBagConstraints(
+                1, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         mainPanel.add(
-            exportReportButton, GridBagConstraints(
-                2, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+            inferVersionComboBox, GridBagConstraints(
+                2, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        mainPanel.add(
+            downloadInferButton, GridBagConstraints(
+                3, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
+//        mainPanel.add(
+//            compilerArgsLabel, GridBagConstraints(
+//                0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+//            )
+//        )
+//        mainPanel.add(
+//            compilerArgsTextField, GridBagConstraints(
+//                1, 2, 3, 1, 1.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+//            )
+//        )
+
         return mainPanel
+    }
+
+    fun updateInferBinPath(path: String) {
+        pluginSettings.inferPath = path
+        inferPathTextField.text = path
     }
 
     private fun createBuildToolComboBox(): ComboBox<String> {
@@ -273,9 +326,31 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         return newComboBox
     }
 
+    private fun createOsComboBox(): ComboBox<String> {
+        val newComboBox = ComboBox<String>()
+        newComboBox.model = DefaultComboBoxModel(OS_STRINGS)
+        newComboBox.selectedItem = pluginSettings.os.title
+        newComboBox.addActionListener { actionEvent ->
+            val comboBox = actionEvent.source as ComboBox<*>
+            pluginSettings.os = OperationSystems.valueOfTitle(comboBox.selectedItem as String)
+        }
+        return newComboBox
+    }
+
+    private fun createInferVersionComboBox(): ComboBox<String> {
+        val newComboBox = ComboBox<String>()
+        newComboBox.model = DefaultComboBoxModel(OS_STRINGS)
+        GlobalScope.launch {
+            newComboBox.model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
+        }
+        return newComboBox
+    }
+
     companion object {
         private val COMPONENT_INSETS = JBUI.insets(4, 7, 4, 4)
         private val BUILD_TOOLS_STRINGS =
             BuildTools.values().filter { it != BuildTools.DEFAULT }.map { it.name }.toTypedArray()
+        private val OS_STRINGS =
+            OperationSystems.values().filter { it != OperationSystems.DEFAULT }.map { it.title }.toTypedArray()
     }
 }

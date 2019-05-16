@@ -3,6 +3,7 @@ package com.maxciv.infer.plugin.config
 import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.BuildTools
+import com.maxciv.infer.plugin.process.OperationSystems
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -13,6 +14,7 @@ data class InferPluginSettings(
     var inferPath: String = "infer",
     var inferWorkingDir: String = "./.idea/infer-out",
     var buildTool: BuildTools = BuildTools.DEFAULT,
+    var os: OperationSystems = OperationSystems.defineOs(),
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,
     var isOnSaveAnalyzeEnabled: Boolean = true,
