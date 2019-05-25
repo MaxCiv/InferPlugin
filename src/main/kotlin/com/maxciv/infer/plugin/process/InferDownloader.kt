@@ -45,9 +45,7 @@ class InferDownloader(private val project: Project) {
         else GitHub.connectAnonymously()
     }
 
-    fun getVersionList(): List<String> {
-        return github.getRepository("facebook/infer")!!.releases.map { it.tagName }
-    }
+    fun getVersionList(): List<String> = github.getRepository("facebook/infer")!!.releases.map { it.tagName }
 
     fun downloadAndInstall(tagVersion: String, operationSystem: OperationSystems) {
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
@@ -83,12 +81,11 @@ class InferDownloader(private val project: Project) {
         })
     }
 
-    private fun getDownloadAsset(tagVersion: String, operationSystem: OperationSystems): GHAsset {
-        return github.getRepository("facebook/infer")!!.releases
+    private fun getDownloadAsset(tagVersion: String, operationSystem: OperationSystems): GHAsset =
+        github.getRepository("facebook/infer")!!.releases
             .find { it.tagName == tagVersion }!!
             .assets
             .find { it.name.contains(operationSystem.key) }!!
-    }
 
     private fun download(indicator: ProgressIndicator, inferDir: File, downloadAsset: GHAsset): File {
         val inferArchiveFile = File(inferDir, downloadAsset.name)

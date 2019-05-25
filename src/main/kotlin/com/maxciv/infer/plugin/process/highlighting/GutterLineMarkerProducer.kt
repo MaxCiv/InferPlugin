@@ -12,10 +12,9 @@ import icons.InferIcons
  */
 object GutterLineMarkerProducer {
 
-    fun createLineMarkerInfo(element: PsiElement, violation: InferViolation): LineMarkerInfo<PsiElement> {
-        return NavigationGutterIconBuilder.create(InferIcons.ICON_VIOLATION)
+    fun createLineMarkerInfo(element: PsiElement, violation: InferViolation): LineMarkerInfo<PsiElement> =
+        NavigationGutterIconBuilder.create(InferIcons.ICON_VIOLATION)
             .setTarget(element)
             .setTooltipText(violation.bugTypeHum + " – " + violation.qualifier)
             .createLineMarkerInfo(element)
-    }
 }

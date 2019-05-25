@@ -12,22 +12,19 @@ enum class OperationSystems(val title: String, val key: String) {
 
     companion object {
 
-        fun defineOs(): OperationSystems {
-            val os = System.getProperty("os.name").toLowerCase()
-            return when {
-                os.contains("mac") -> MAC_OS
-                os.contains("nix") -> LINUX
-                os.contains("nux") -> LINUX
+        fun defineOs(): OperationSystems = with(System.getProperty("os.name").toLowerCase()) {
+            when {
+                contains("mac") -> MAC_OS
+                contains("nix") -> LINUX
+                contains("nux") -> LINUX
                 else -> DEFAULT
             }
         }
 
-        fun valueOfTitle(title: String): OperationSystems {
-            return when (title) {
-                MAC_OS.title -> MAC_OS
-                LINUX.title -> LINUX
-                else -> DEFAULT
-            }
+        fun valueOfTitle(title: String): OperationSystems = when (title) {
+            MAC_OS.title -> MAC_OS
+            LINUX.title -> LINUX
+            else -> DEFAULT
         }
     }
 }

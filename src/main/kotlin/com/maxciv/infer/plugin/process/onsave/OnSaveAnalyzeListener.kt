@@ -24,24 +24,24 @@ class OnSaveAnalyzeListener(
 
     private val waitTime = 200L
 
-    override fun contentsChanged(event: VirtualFileEvent) {
-        if (pluginSettings.isOnSaveAnalyzeEnabled
+    override fun contentsChanged(event: VirtualFileEvent) = with(pluginSettings) {
+        if (isOnSaveAnalyzeEnabled
             && event.isFromSave
             && event.fileName.endsWith(".java")
         ) {
             val currentTimeMillis = System.currentTimeMillis()
             if (isTimeToRunAnalysis(currentTimeMillis)) {
-                pluginSettings.lastAnalysisTime = currentTimeMillis
+                lastAnalysisTime = currentTimeMillis
                 GlobalScope.launch {
                     do {
                         delay(waitTime)
-                    } while (pluginSettings.analysisCounter.get() != 0)
-                    val files = pluginSettings.filesToAnalyse.toList()
-                    pluginSettings.filesToAnalyse.removeAll(files)
+                    } while (analysisCounter.get() != 0)
+                    val files = filesToAnalyse.toList()
+                    filesToAnalyse.removeAll(files)
                     AnalysisActions.runOnSaveAnalysis(project, files)
                 }
             }
-            pluginSettings.filesToAnalyse.add(event.file.canonicalPath!!)
+            filesToAnalyse.add(event.file.canonicalPath!!)
         }
     }
 

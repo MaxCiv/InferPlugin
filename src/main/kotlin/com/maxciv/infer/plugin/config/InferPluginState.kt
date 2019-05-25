@@ -21,18 +21,14 @@ class InferPluginState(project: Project) : PersistentStateComponent<InferPluginS
         this.pluginSettings = defaultPluginSettings(project)
     }
 
-    override fun getState(): InferPluginSettings? {
-        return pluginSettings
-    }
+    override fun getState(): InferPluginSettings? = pluginSettings
 
     override fun loadState(state: InferPluginSettings) {
         pluginSettings = state
     }
 
-    private fun defaultPluginSettings(project: Project): InferPluginSettings {
-        val defaultSettings = InferPluginSettings()
-        defaultSettings.buildTool = DefineBuildTool.defineFor(project)
-        defaultSettings.inferWorkingDir = project.basePath!! + File.separator + ".idea" + File.separator + "infer-out"
-        return defaultSettings
+    private fun defaultPluginSettings(project: Project): InferPluginSettings = InferPluginSettings().apply {
+        buildTool = DefineBuildTool.defineFor(project)
+        inferWorkingDir = project.basePath!! + File.separator + ".idea" + File.separator + "infer-out"
     }
 }

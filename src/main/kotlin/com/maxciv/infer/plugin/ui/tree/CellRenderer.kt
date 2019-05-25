@@ -10,13 +10,13 @@ import javax.swing.JTree
 class CellRenderer : ColoredTreeCellRenderer() {
 
     override fun customizeCellRenderer(
-            tree: JTree,
-            value: Any,
-            selected: Boolean,
-            expanded: Boolean,
-            leaf: Boolean,
-            row: Int,
-            hasFocus: Boolean
+        tree: JTree,
+        value: Any,
+        selected: Boolean,
+        expanded: Boolean,
+        leaf: Boolean,
+        row: Int,
+        hasFocus: Boolean
     ) {
         if (value is TreeNodeData) {
             value.render(this)

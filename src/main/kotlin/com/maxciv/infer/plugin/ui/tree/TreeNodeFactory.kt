@@ -9,19 +9,14 @@ import javax.swing.tree.DefaultMutableTreeNode
  */
 object TreeNodeFactory {
 
-    fun createNode(userObject: Any): DefaultMutableTreeNode {
-        return when (userObject) {
-            is InferViolation -> ViolationNode(userObject)
-            is String -> StringNode(userObject)
-            else -> StringNode("Unknown node type")
-        }
+    fun createNode(userObject: Any): DefaultMutableTreeNode = when (userObject) {
+        is InferViolation -> ViolationNode(userObject)
+        is String -> StringNode(userObject)
+        else -> StringNode("Unknown node type")
     }
 
-    fun createFileNode(file: String, violationsCount: Int, isShortClassName: Boolean): DefaultMutableTreeNode {
-        return FileNode(file, violationsCount, isShortClassName)
-    }
+    fun createFileNode(file: String, violationsCount: Int, isShortClassName: Boolean): DefaultMutableTreeNode =
+        FileNode(file, violationsCount, isShortClassName)
 
-    fun createDefaultRootNode(): DefaultMutableTreeNode {
-        return RootNode()
-    }
+    fun createDefaultRootNode(): DefaultMutableTreeNode = RootNode()
 }

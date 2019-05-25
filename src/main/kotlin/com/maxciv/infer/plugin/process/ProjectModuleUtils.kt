@@ -41,11 +41,9 @@ object ProjectModuleUtils {
         return if (possibleModule.isNotEmpty()) possibleModule[0] else ProjectModule(listOf(), listOf())
     }
 
-    fun getInferWorkingDirForModule(inferWorkingDir: String, module: ProjectModule): String {
-        return inferWorkingDir + "_" + module.hashCode()
-    }
+    fun getInferWorkingDirForModule(inferWorkingDir: String, module: ProjectModule): String =
+        inferWorkingDir + "_" + module.hashCode()
 
-    fun getIdeaModuleForFile(filename: String, project: Project): Module? {
-        return ModuleUtil.findModuleForFile(LocalFileSystem.getInstance().findFileByIoFile(File(filename))!!, project)
-    }
+    fun getIdeaModuleForFile(filename: String, project: Project): Module? =
+        ModuleUtil.findModuleForFile(LocalFileSystem.getInstance().findFileByIoFile(File(filename))!!, project)
 }

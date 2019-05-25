@@ -18,7 +18,7 @@ data class InferPluginSettings(
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,
     var isOnSaveAnalyzeEnabled: Boolean = true,
-    var isCompileOnModuleAnalysisEnabled: Boolean = false,
+    var isCompileOnModuleAnalysisEnabled: Boolean = true,
     var isCompileOnlyOneModuleOnModuleAnalysisEnabled: Boolean = false,
     var isShortClassNamesEnabled: Boolean = true,
     var aggregatedInferReport: InferReport = InferReport(),

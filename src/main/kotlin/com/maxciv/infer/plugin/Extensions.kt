@@ -24,6 +24,4 @@ fun ProgressIndicator?.updateText(newText: String, progress: Double = -1.0) {
  * From '/root/some/src/java/...' to 'src/java/...'
  * with projectPath = '/root/some'
  */
-fun String.toProjectRelativePath(projectPath: String): String {
-    return this.replace(projectPath + File.separator, "")
-}
+fun String.toProjectRelativePath(projectPath: String): String = this.replace(projectPath + File.separator, "")

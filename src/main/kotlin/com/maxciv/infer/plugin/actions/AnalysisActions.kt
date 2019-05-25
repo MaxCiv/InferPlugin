@@ -21,16 +21,12 @@ object AnalysisActions {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
-            override fun run(indicator: ProgressIndicator) {
-                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+            override fun run(indicator: ProgressIndicator) = with(inferProjectComponent) {
+                if (pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runFileAnalysis(
-                    inferProjectComponent.pluginSettings.buildTool,
-                    filepathList,
-                    indicator
-                )
-                inferProjectComponent.resultsTab.updateCurrentFileTree()
-                inferProjectComponent.resultsTab.updateFullReportTree()
+                inferRunner.runFileAnalysis(pluginSettings.buildTool, filepathList, indicator)
+                resultsTab.updateCurrentFileTree()
+                resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -49,16 +45,12 @@ object AnalysisActions {
         val virtualFile = FileDocumentManager.getInstance().getFile(editor.document) ?: return
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
-            override fun run(indicator: ProgressIndicator) {
-                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+            override fun run(indicator: ProgressIndicator) = with(inferProjectComponent) {
+                if (pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runFileAnalysis(
-                    inferProjectComponent.pluginSettings.buildTool,
-                    listOf(virtualFile.canonicalPath!!),
-                    indicator
-                )
-                inferProjectComponent.resultsTab.updateCurrentFileTree()
-                inferProjectComponent.resultsTab.updateFullReportTree()
+                inferRunner.runFileAnalysis(pluginSettings.buildTool, listOf(virtualFile.canonicalPath!!), indicator)
+                resultsTab.updateCurrentFileTree()
+                resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -77,16 +69,12 @@ object AnalysisActions {
         val virtualFile = FileDocumentManager.getInstance().getFile(editor.document) ?: return
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
-            override fun run(indicator: ProgressIndicator) {
-                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+            override fun run(indicator: ProgressIndicator) = with(inferProjectComponent) {
+                if (pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runModuleAnalysis(
-                    inferProjectComponent.pluginSettings.buildTool,
-                    virtualFile.canonicalPath!!,
-                    indicator
-                )
-                inferProjectComponent.resultsTab.updateCurrentFileTree()
-                inferProjectComponent.resultsTab.updateFullReportTree()
+                inferRunner.runModuleAnalysis(pluginSettings.buildTool, virtualFile.canonicalPath!!, indicator)
+                resultsTab.updateCurrentFileTree()
+                resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -102,15 +90,12 @@ object AnalysisActions {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running...") {
-            override fun run(indicator: ProgressIndicator) {
-                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+            override fun run(indicator: ProgressIndicator) = with(inferProjectComponent) {
+                if (pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runAllModulesAnalysis(
-                    inferProjectComponent.pluginSettings.buildTool,
-                    indicator
-                )
-                inferProjectComponent.resultsTab.updateCurrentFileTree()
-                inferProjectComponent.resultsTab.updateFullReportTree()
+                inferRunner.runAllModulesAnalysis(pluginSettings.buildTool, indicator)
+                resultsTab.updateCurrentFileTree()
+                resultsTab.updateFullReportTree()
             }
 
             override fun onFinished() {
@@ -126,18 +111,15 @@ object AnalysisActions {
         val inferProjectComponent = project.getComponent(InferProjectComponent::class.java)
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Infer Running......") {
-            override fun run(indicator: ProgressIndicator) {
-                if (inferProjectComponent.pluginSettings.analysisCounter.getAndIncrement() != 0) return
+            override fun run(indicator: ProgressIndicator) = with(inferProjectComponent) {
+                if (pluginSettings.analysisCounter.getAndIncrement() != 0) return
                 indicator.isIndeterminate = true
-                inferProjectComponent.inferRunner.runPreAnalysis(
-                    inferProjectComponent.pluginSettings.buildTool,
-                    indicator
-                )
-                inferProjectComponent.resultsTab.updateCurrentFileTree()
-                inferProjectComponent.resultsTab.updateFullReportTree()
+                inferRunner.runPreAnalysis(pluginSettings.buildTool, indicator)
+                resultsTab.updateCurrentFileTree()
+                resultsTab.updateFullReportTree()
                 //TODO норм вывод аргументов по модулям?
-                inferProjectComponent.settingsTab.compilerArgsTextField.text =
-                    inferProjectComponent.pluginSettings.projectModules.joinToString(" ")
+                settingsTab.compilerArgsTextField.text =
+                    pluginSettings.projectModules.joinToString(" ")
             }
 
             override fun onFinished() {

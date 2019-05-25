@@ -14,16 +14,16 @@ class RootNode : DefaultMutableTreeNode(LABEL), TreeNodeData {
 
     lateinit var inferReport: InferReport
 
-    override fun render(cellRenderer: CellRenderer) {
-        cellRenderer.append(LABEL, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-        if (this::inferReport.isInitialized) {
-            cellRenderer.append(
-                " (${inferReport.violationsByFile.size} files with ${inferReport.getTotalViolationCount()} violations)",
-                SimpleTextAttributes.GRAYED_ATTRIBUTES
-            )
+    override fun render(cellRenderer: CellRenderer) = with(cellRenderer) {
+        append(LABEL, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        icon = ICON_INFER
+        if (this@RootNode::inferReport.isInitialized) {
+            append(getViolationCountText(), SimpleTextAttributes.GRAYED_ATTRIBUTES)
         }
-        cellRenderer.icon = ICON_INFER
     }
+
+    private fun getViolationCountText(): String =
+        " (${inferReport.violationsByFile.size} files with ${inferReport.getTotalViolationCount()} violations)"
 
     companion object {
         private const val LABEL = "Infer Results"

@@ -12,12 +12,10 @@ import javax.swing.tree.DefaultMutableTreeNode
  */
 class ViolationNode(var violation: InferViolation) : DefaultMutableTreeNode(), TreeNodeData {
 
-    override fun render(cellRenderer: CellRenderer) {
-        with(cellRenderer) {
-            append("(" + violation.line + ") ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
-            append(violation.bugTypeHum + " – " + violation.qualifier, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-            icon = ICON_VIOLATION
-            toolTipText = violation.qualifier
-        }
+    override fun render(cellRenderer: CellRenderer) = with(cellRenderer) {
+        append("(" + violation.line + ") ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        append(violation.bugTypeHum + " – " + violation.qualifier, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        icon = ICON_VIOLATION
+        toolTipText = violation.qualifier
     }
 }

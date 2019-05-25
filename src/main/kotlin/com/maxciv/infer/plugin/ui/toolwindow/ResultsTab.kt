@@ -172,14 +172,13 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
-    private fun addNodeToRoot(node: DefaultMutableTreeNode): DefaultMutableTreeNode {
-        return addNodeToParent(fullReportRootNode, node)
-    }
+    private fun addNodeToRoot(node: DefaultMutableTreeNode): DefaultMutableTreeNode =
+        addNodeToParent(fullReportRootNode, node)
 
-    private fun addNodeToParent(parent: DefaultMutableTreeNode, node: DefaultMutableTreeNode): DefaultMutableTreeNode {
-        parent.add(node)
-        return node
-    }
+    private fun addNodeToParent(parent: DefaultMutableTreeNode, node: DefaultMutableTreeNode): DefaultMutableTreeNode =
+        node.also {
+            parent.add(it)
+        }
 
     private fun openEditor(violationNode: ViolationNode) {
         val fileEditorManager = FileEditorManager.getInstance(project)
@@ -198,16 +197,12 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
     }
 
-    fun collapseFullReport() {
-        ApplicationManager.getApplication().invokeLater {
-            TreeUtil.collapseAll(fullReportTreeResults, 2)
-        }
+    fun collapseFullReport() = ApplicationManager.getApplication().invokeLater {
+        TreeUtil.collapseAll(fullReportTreeResults, 2)
     }
 
-    fun expandFullReport() {
-        ApplicationManager.getApplication().invokeLater {
-            TreeUtil.expandAll(fullReportTreeResults)
-        }
+    fun expandFullReport() = ApplicationManager.getApplication().invokeLater {
+        TreeUtil.expandAll(fullReportTreeResults)
     }
 
     inner class CurrentFileMouseClickListener : MouseAdapter() {

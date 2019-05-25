@@ -20,4 +20,5 @@ object InferIcons {
     val ICON_GREEN_BUILD: Icon = AllIcons.Actions.Compile
     val ICON_ABSTRACT_CLASS: Icon = AllIcons.Nodes.AbstractClass
     val ICON_DOWNLOAD: Icon = AllIcons.Actions.Download
+    val ICON_CONSOLE: Icon = AllIcons.Debugger.ToolConsole
 }

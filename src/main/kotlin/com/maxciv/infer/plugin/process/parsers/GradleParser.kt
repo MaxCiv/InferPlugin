@@ -10,7 +10,7 @@ import java.io.File
 object GradleParser {
 
     // for compiler arguments
-    private val emptyLineRegex = """\n\n""".toRegex()
+    private val moduleDelimeterRegex = """\n\n""".toRegex()
     private val loggerMarkerRegex = """\[.*?]\s*""".toRegex()
     private val javacRegex = """.*javac\s*""".toRegex()
     private val javaFilesRegex = """@.*/gradle.*txt""".toRegex()
@@ -23,54 +23,44 @@ object GradleParser {
     private val fileListBeginningRegex = """.*\+\+Contents of .*filelists/gradle.*\.txt""".toRegex()
 
 
-    fun getCompilerArgs(logs: String): List<ProjectModule> {
-        // 1. Делим по пустым строкам все логи на блоки модулей
-        val moduleBlocks = logs.split(emptyLineRegex)
+    fun getCompilerArgs(logs: String): List<ProjectModule> = logs.split(moduleDelimeterRegex).asSequence()
+        .map { moduleBlock ->
+            val filenamesList = getFilenames(moduleBlock.lines())
+            val compilerArgsList = getCompilerArgs(moduleBlock.lines())
+            val updatedCompilerArgs =
+                if (compilerArgsList.isNotEmpty() && filenamesList.isNotEmpty())
+                    updateCompilerArgsForFile(filenamesList[0], compilerArgsList)
+                else compilerArgsList
+            ProjectModule(filenamesList, updatedCompilerArgs)
+        }
+        .filter { it.compilerArgs.isNotEmpty() && it.sourceFiles.isNotEmpty() }
+        .toList()
 
-        // 2. Для каждого модуля получаем список файлов и аргументов компилятора
-        return moduleBlocks.asSequence()
-            .map { moduleBlock ->
-                val filenamesList = getFilenames(moduleBlock.lines())
-                val compilerArgsList = getCompilerArgs(moduleBlock.lines())
-                val updatedCompilerArgs =
-                    if (compilerArgsList.isNotEmpty() && filenamesList.isNotEmpty())
-                        updateCompilerArgsForFile(filenamesList[0], compilerArgsList)
-                    else compilerArgsList
-                ProjectModule(filenamesList, updatedCompilerArgs)
-            }
-            .filter { it.compilerArgs.isNotEmpty() && it.sourceFiles.isNotEmpty() }
-            .toList()
-    }
+    private fun getFilenames(logLines: List<String>): List<String> = logLines.asSequence()
+        .map { it.replace(loggerMarkerRegex, "") }
+        .dropWhile { !it.contains(fileListBeginningRegex) }
+        .drop(1)
+        .takeWhile { it.isNotBlank() }
+        .toList()
 
-    private fun getFilenames(logLines: List<String>): List<String> {
-        return logLines.asSequence()
-            .map { it.replace(loggerMarkerRegex, "") }
-            .dropWhile { !it.contains(fileListBeginningRegex) }
-            .drop(1)
-            .takeWhile { it.isNotBlank() }
-            .toList()
-    }
-
-    private fun getCompilerArgs(logLines: List<String>): List<String> {
-        return logLines.asSequence()
-            .map { it.replace(loggerMarkerRegex, "") }
-            .dropWhile { !it.contains(javacRegex) }
-            .takeWhile { !it.contains(javaFilesRegex) }
-            .map { it.replace(javacRegex, "") }
-            .flatMap { fullLine ->
-                var changedLine = fullLine
-                javacOptionRegex.findAll(fullLine)
-                    .forEach {
-                        changedLine = changedLine.replace(it.value, "$DELIMETER${it.value}$DELIMETER")
-                    }
-                changedLine.replace("^\uD83D\uDE31".toRegex(), "")
-                    .replace("$DELIMETER$".toRegex(), "")
-                    .split(DELIMETER).asSequence()
-            }
-            .filter { it.isNotEmpty() }
-            .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
-            .toList()
-    }
+    private fun getCompilerArgs(logLines: List<String>): List<String> = logLines.asSequence()
+        .map { it.replace(loggerMarkerRegex, "") }
+        .dropWhile { !it.contains(javacRegex) }
+        .takeWhile { !it.contains(javaFilesRegex) }
+        .map { it.replace(javacRegex, "") }
+        .flatMap { fullLine ->
+            var changedLine = fullLine
+            javacOptionRegex.findAll(fullLine)
+                .forEach {
+                    changedLine = changedLine.replace(it.value, "$DELIMETER${it.value}$DELIMETER")
+                }
+            changedLine.replace("^\uD83D\uDE31".toRegex(), "")
+                .replace("$DELIMETER$".toRegex(), "")
+                .split(DELIMETER).asSequence()
+        }
+        .filter { it.isNotEmpty() }
+        .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
+        .toList()
 
     private fun updateCompilerArgsForFile(filename: String, compilerArgs: List<String>): List<String> {
         val sourcepath = sourcepathRegex.find(filename)!!.value

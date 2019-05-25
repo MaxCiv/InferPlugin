@@ -15,9 +15,9 @@ import com.maxciv.infer.plugin.process.OperationSystems
 import com.maxciv.infer.plugin.process.report.ReportExporter
 import com.maxciv.infer.plugin.process.report.ReportImporter
 import icons.InferIcons.ICON_BUILD_TOOLS
+import icons.InferIcons.ICON_CONSOLE
 import icons.InferIcons.ICON_DOWNLOAD
 import icons.InferIcons.ICON_FULL_REPORT
-import icons.InferIcons.ICON_INFER
 import icons.InferIcons.ICON_INFER_WORKING_DIR
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -49,7 +49,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val importReportButton = JButton("Import")
     private val exportReportButton = JButton("Export")
 
-    private val inferPathLabel = JLabel("Infer binaries path:", ICON_INFER, SwingConstants.LEFT)
+    private val inferPathLabel = JLabel("Infer binaries path:", ICON_CONSOLE, SwingConstants.LEFT)
     private val inferPathTextField = JTextField("infer", SwingConstants.LEFT)
     private val chooseInferPathButton = JButton("Choose")
 
@@ -171,143 +171,139 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         project.getComponent(InferProjectComponent::class.java).settingsTab = this
     }
 
-    private fun createMainPanel(): JPanel {
-        val mainPanel = JPanel(GridBagLayout())
-
-        mainPanel.add(
+    private fun createMainPanel(): JPanel = JPanel(GridBagLayout()).apply {
+        add(
             compileOnModuleAnalysisCheckBox, GridBagConstraints(
                 0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
                 1, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             shortClassNamesCheckBox, GridBagConstraints(
                 3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
-        mainPanel.add(
+        add(
             buildToolLabel, GridBagConstraints(
                 0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             buildToolComboBox, GridBagConstraints(
                 1, 1, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             runFullAnalysisButton, GridBagConstraints(
                 3, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
-        mainPanel.add(
+        add(
             importExportLabel, GridBagConstraints(
                 0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             importReportButton, GridBagConstraints(
                 1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             exportReportButton, GridBagConstraints(
                 2, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
 
-        mainPanel.add(
+        add(
             inferPathLabel, GridBagConstraints(
                 0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             inferPathTextField, GridBagConstraints(
                 1, 3, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             chooseInferPathButton, GridBagConstraints(
                 3, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
-        mainPanel.add(
+        add(
             inferWorkingDirLabel, GridBagConstraints(
                 0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             inferWorkingDirTextField, GridBagConstraints(
                 1, 4, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             chooseInferWorkingDirButton, GridBagConstraints(
                 3, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
-        mainPanel.add(
+        add(
             downloadInferLabel, GridBagConstraints(
                 0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             osComboBox, GridBagConstraints(
                 1, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             inferVersionComboBox, GridBagConstraints(
                 2, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-        mainPanel.add(
+        add(
             downloadInferButton, GridBagConstraints(
                 3, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
 
-//        mainPanel.add(
+//        add(
 //            compilerArgsLabel, GridBagConstraints(
 //                0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
 //                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
 //            )
 //        )
-//        mainPanel.add(
+//        add(
 //            compilerArgsTextField, GridBagConstraints(
 //                1, 2, 3, 1, 1.0, 0.0, GridBagConstraints.WEST,
 //                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
 //            )
 //        )
-
-        return mainPanel
     }
 
     fun updateInferBinPath(path: String) {
@@ -315,35 +311,29 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         inferPathTextField.text = path
     }
 
-    private fun createBuildToolComboBox(): ComboBox<String> {
-        val newComboBox = ComboBox<String>()
-        newComboBox.model = DefaultComboBoxModel(BUILD_TOOLS_STRINGS)
-        newComboBox.selectedItem = pluginSettings.buildTool.name
-        newComboBox.addActionListener { actionEvent ->
+    private fun createBuildToolComboBox(): ComboBox<String> = ComboBox<String>().apply {
+        model = DefaultComboBoxModel(BUILD_TOOLS_STRINGS)
+        selectedItem = pluginSettings.buildTool.name
+        addActionListener { actionEvent ->
             val comboBox = actionEvent.source as ComboBox<*>
             pluginSettings.buildTool = BuildTools.valueOf(comboBox.selectedItem as String)
         }
-        return newComboBox
     }
 
-    private fun createOsComboBox(): ComboBox<String> {
-        val newComboBox = ComboBox<String>()
-        newComboBox.model = DefaultComboBoxModel(OS_STRINGS)
-        newComboBox.selectedItem = pluginSettings.os.title
-        newComboBox.addActionListener { actionEvent ->
+    private fun createOsComboBox(): ComboBox<String> = ComboBox<String>().apply {
+        model = DefaultComboBoxModel(OS_STRINGS)
+        selectedItem = pluginSettings.os.title
+        addActionListener { actionEvent ->
             val comboBox = actionEvent.source as ComboBox<*>
             pluginSettings.os = OperationSystems.valueOfTitle(comboBox.selectedItem as String)
         }
-        return newComboBox
     }
 
-    private fun createInferVersionComboBox(): ComboBox<String> {
-        val newComboBox = ComboBox<String>()
-        newComboBox.model = DefaultComboBoxModel(OS_STRINGS)
+    private fun createInferVersionComboBox(): ComboBox<String> = ComboBox<String>().apply {
+        model = DefaultComboBoxModel(OS_STRINGS)
         GlobalScope.launch {
-            newComboBox.model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
+            model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
         }
-        return newComboBox
     }
 
     companion object {
