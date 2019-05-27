@@ -117,9 +117,6 @@ object AnalysisActions {
                 inferRunner.runPreAnalysis(pluginSettings.buildTool, indicator)
                 resultsTab.updateCurrentFileTree()
                 resultsTab.updateFullReportTree()
-                //TODO норм вывод аргументов по модулям?
-                settingsTab.compilerArgsTextField.text =
-                    pluginSettings.projectModules.joinToString(" ")
             }
 
             override fun onFinished() {
