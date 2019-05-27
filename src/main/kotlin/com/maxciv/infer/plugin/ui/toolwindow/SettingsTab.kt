@@ -14,6 +14,7 @@ import com.maxciv.infer.plugin.process.InferDownloader
 import com.maxciv.infer.plugin.process.OperationSystems
 import com.maxciv.infer.plugin.process.report.ReportExporter
 import com.maxciv.infer.plugin.process.report.ReportImporter
+import icons.InferIcons.ICON_ARRAY
 import icons.InferIcons.ICON_BUILD_TOOLS
 import icons.InferIcons.ICON_CONSOLE
 import icons.InferIcons.ICON_DOWNLOAD
@@ -28,6 +29,7 @@ import java.io.File
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
+import javax.swing.text.Document
 
 /**
  * @author maxim.oleynik
@@ -35,14 +37,34 @@ import javax.swing.event.DocumentListener
  */
 class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
+    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
+    private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
+    private val inferDownloader: InferDownloader = InferDownloader(project)
+
     //region UI
-    private val shortClassNamesCheckBox = JCheckBox("Use short class names")
-    private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis")
+    private val shortClassNamesCheckBox = JCheckBox("Use short class names").apply {
+        isSelected = pluginSettings.isShortClassNamesEnabled
+        addChangeListener { pluginSettings.isShortClassNamesEnabled = isSelected }
+    }
+
+    private val compileOnModuleAnalysisCheckBox = JCheckBox("Compile before Module Analysis").apply {
+        isSelected = pluginSettings.isCompileOnModuleAnalysisEnabled
+        addChangeListener { pluginSettings.isCompileOnModuleAnalysisEnabled = isSelected }
+    }
+
     private val compileOnlyOneModuleOnModuleAnalysisCheckBox =
-        JCheckBox("Compile only current module before Module Analysis")
+        JCheckBox("Compile only current module before Module Analysis").apply {
+            isSelected = pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled
+            addChangeListener { pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled = isSelected }
+        }
+
+    private val differentDirsForModulesCheckBox = JCheckBox("Different result dirs for modules").apply {
+        isSelected = pluginSettings.isDifferentDirsForModulesEnabled
+        addChangeListener { pluginSettings.isDifferentDirsForModulesEnabled = isSelected }
+    }
 
     private val buildToolLabel = JLabel("Build tool:", ICON_BUILD_TOOLS, SwingConstants.LEFT)
-    private val buildToolComboBox: ComboBox<String>
+    private val buildToolComboBox: ComboBox<String> = createBuildToolComboBox()
     private val runFullAnalysisButton = JButton("Run pre-analysis")
 
     private val importExportLabel = JLabel("Report:", ICON_FULL_REPORT, SwingConstants.LEFT)
@@ -50,70 +72,42 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val exportReportButton = JButton("Export")
 
     private val inferPathLabel = JLabel("Infer binaries path:", ICON_CONSOLE, SwingConstants.LEFT)
-    private val inferPathTextField = JTextField("infer", SwingConstants.LEFT)
+    private val inferPathTextField = JTextField(pluginSettings.inferPath, SwingConstants.LEFT)
     private val chooseInferPathButton = JButton("Choose")
 
     private val inferWorkingDirLabel = JLabel("Infer working directory:", ICON_INFER_WORKING_DIR, SwingConstants.LEFT)
-    private val inferWorkingDirTextField = JTextField("./infer-out", SwingConstants.LEFT)
+    private val inferWorkingDirTextField = JTextField(pluginSettings.inferWorkingDir, SwingConstants.LEFT)
     private val chooseInferWorkingDirButton = JButton("Choose")
 
     private val downloadInferLabel = JLabel("Download Infer:", ICON_DOWNLOAD, SwingConstants.LEFT)
-    private val osComboBox: ComboBox<String>
-    private val inferVersionComboBox: ComboBox<String>
+    private val osComboBox: ComboBox<String> = createOsComboBox()
+    private val inferVersionComboBox: ComboBox<String> = createInferVersionComboBox()
     private val downloadInferButton = JButton("Download")
 
-    private val compilerArgsLabel = JLabel("Compiler arguments", SwingConstants.LEFT)
-    val compilerArgsTextField = JTextField("", SwingConstants.LEFT)
+    private val mavenArgsLabel = JLabel("Maven args:", ICON_ARRAY, SwingConstants.RIGHT)
+    private val mavenArgsTextField =
+        JTextField(pluginSettings.mavenUserArguments.joinToString(" "), SwingConstants.LEFT)
+    private val gradleArgsTextField =
+        JTextField(pluginSettings.gradleUserArguments.joinToString(" "), SwingConstants.RIGHT)
+    private val gradleArgsLabel = JLabel("Gradle args", ICON_ARRAY, SwingConstants.LEFT)
     //endregion
 
-    private val inferProjectComponent: InferProjectComponent = project.getComponent(InferProjectComponent::class.java)
-    private val pluginSettings: InferPluginSettings = inferProjectComponent.pluginSettings
-    private val inferDownloader: InferDownloader = InferDownloader(project)
-
     init {
-        buildToolComboBox = createBuildToolComboBox()
-        osComboBox = createOsComboBox()
-        inferVersionComboBox = createInferVersionComboBox()
+        inferPathTextField.document.addDocumentListener {
+            pluginSettings.inferPath = inferPathTextField.text
+        }
 
-        compilerArgsTextField.text = pluginSettings.projectModules.joinToString(" ")
+        inferWorkingDirTextField.document.addDocumentListener {
+            pluginSettings.inferWorkingDir = inferWorkingDirTextField.text
+        }
 
-        inferPathTextField.text = pluginSettings.inferPath
-        inferPathTextField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) {
-                save()
-            }
+        mavenArgsTextField.document.addDocumentListener {
+            pluginSettings.mavenUserArguments = mavenArgsTextField.text.split(" ")
+        }
 
-            override fun removeUpdate(e: DocumentEvent) {
-                save()
-            }
-
-            override fun changedUpdate(e: DocumentEvent) {
-                save()
-            }
-
-            private fun save() {
-                pluginSettings.inferPath = inferPathTextField.text
-            }
-        })
-
-        inferWorkingDirTextField.text = pluginSettings.inferWorkingDir
-        inferWorkingDirTextField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) {
-                save()
-            }
-
-            override fun removeUpdate(e: DocumentEvent) {
-                save()
-            }
-
-            override fun changedUpdate(e: DocumentEvent) {
-                save()
-            }
-
-            private fun save() {
-                pluginSettings.inferWorkingDir = inferWorkingDirTextField.text
-            }
-        })
+        gradleArgsTextField.document.addDocumentListener {
+            pluginSettings.gradleUserArguments = gradleArgsTextField.text.split(" ")
+        }
 
         importReportButton.addActionListener {
             ReportImporter.importReport(project, pluginSettings)
@@ -126,20 +120,6 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
         runFullAnalysisButton.addActionListener {
             AnalysisActions.runPreAnalysis(project)
-        }
-        shortClassNamesCheckBox.isSelected = pluginSettings.isShortClassNamesEnabled
-        shortClassNamesCheckBox.addChangeListener {
-            pluginSettings.isShortClassNamesEnabled = shortClassNamesCheckBox.isSelected
-        }
-        compileOnModuleAnalysisCheckBox.isSelected = pluginSettings.isCompileOnModuleAnalysisEnabled
-        compileOnModuleAnalysisCheckBox.addChangeListener {
-            pluginSettings.isCompileOnModuleAnalysisEnabled = compileOnModuleAnalysisCheckBox.isSelected
-        }
-        compileOnlyOneModuleOnModuleAnalysisCheckBox.isSelected =
-            pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled
-        compileOnlyOneModuleOnModuleAnalysisCheckBox.addChangeListener {
-            pluginSettings.isCompileOnlyOneModuleOnModuleAnalysisEnabled =
-                compileOnlyOneModuleOnModuleAnalysisCheckBox.isSelected
         }
         chooseInferPathButton.addActionListener {
             val descriptor = FileChooserDescriptor(true, false, false, false, false, false)
@@ -292,18 +272,37 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
             )
         )
 
-//        add(
-//            compilerArgsLabel, GridBagConstraints(
-//                0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-//                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-//            )
-//        )
-//        add(
-//            compilerArgsTextField, GridBagConstraints(
-//                1, 2, 3, 1, 1.0, 0.0, GridBagConstraints.WEST,
-//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-//            )
-//        )
+        add(
+            differentDirsForModulesCheckBox, GridBagConstraints(
+                1, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+
+        add(
+            mavenArgsLabel, GridBagConstraints(
+                0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            mavenArgsTextField, GridBagConstraints(
+                1, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            gradleArgsTextField, GridBagConstraints(
+                2, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            gradleArgsLabel, GridBagConstraints(
+                3, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
     }
 
     fun updateInferBinPath(path: String) {
@@ -334,6 +333,14 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         GlobalScope.launch {
             model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
         }
+    }
+
+    private inline fun Document.addDocumentListener(crossinline block: () -> Unit) {
+        this.addDocumentListener(object : DocumentListener {
+            override fun insertUpdate(e: DocumentEvent) = block()
+            override fun removeUpdate(e: DocumentEvent) = block()
+            override fun changedUpdate(e: DocumentEvent) = block()
+        })
     }
 
     companion object {

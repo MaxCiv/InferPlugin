@@ -14,8 +14,7 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceInterface="com.maxciv.infer.plugin.config.InferPluginState"
-                        serviceImplementation="com.maxciv.infer.plugin.config.InferPluginState"/>
+        <projectService serviceImplementation="com.maxciv.infer.plugin.config.InferPluginState"/>
 
         <toolWindow id="Infer"
                     secondary="true"
@@ -27,6 +26,7 @@
                 language="JAVA"
                 implementationClass="com.maxciv.infer.plugin.process.highlighting.ViolationLineMarkerProvider"/>
 
+        <projectService serviceImplementation="com.maxciv.infer.plugin.process.onsave.OnSaveService"/>
     </extensions>
 
     <actions>

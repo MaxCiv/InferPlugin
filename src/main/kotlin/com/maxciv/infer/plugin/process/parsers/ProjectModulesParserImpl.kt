@@ -2,6 +2,7 @@ package com.maxciv.infer.plugin.process.parsers
 
 import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.process.BuildTools
+import com.maxciv.infer.plugin.process.BuildTools.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -19,8 +20,8 @@ class ProjectModulesParserImpl : ProjectModulesParser {
 
         val logLines = BufferedReader(FileReader(logsFile) as Reader?).readText()
         return when (buildTool) {
-            BuildTools.MAVEN -> MavenParser.getCompilerArgs(logLines)
-            BuildTools.GRADLEW, BuildTools.GRADLE -> GradleParser.getCompilerArgs(logLines)
+            MAVEN, MAVEN_INSTALL, MAVENW, MAVENW_INSTALL -> MavenParser.getCompilerArgs(logLines)
+            GRADLE, GRADLEW -> GradleParser.getCompilerArgs(logLines)
             else -> listOf()
         }
     }

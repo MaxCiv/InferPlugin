@@ -8,6 +8,6 @@ data class CommandResult(
     val stdOut: String,
     val stdErr: String,
     val exitCode: Int,
-    val cmd: List<String> = listOf(),
-    val isSuccess: Boolean = exitCode == 0
+    val isSuccess: Boolean = exitCode == 0,
+    val cmd: List<String> = listOf()
 )

@@ -21,4 +21,5 @@ object InferIcons {
     val ICON_ABSTRACT_CLASS: Icon = AllIcons.Nodes.AbstractClass
     val ICON_DOWNLOAD: Icon = AllIcons.Actions.Download
     val ICON_CONSOLE: Icon = AllIcons.Debugger.ToolConsole
+    val ICON_ARRAY: Icon = AllIcons.Json.Array
 }

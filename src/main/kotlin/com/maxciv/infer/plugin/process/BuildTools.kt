@@ -7,6 +7,9 @@ package com.maxciv.infer.plugin.process
 enum class BuildTools {
     DEFAULT,
     MAVEN,
+    MAVEN_INSTALL,
+    MAVENW,
+    MAVENW_INSTALL,
     GRADLE,
     GRADLEW
 }

@@ -9,7 +9,8 @@ import com.intellij.openapi.project.Project
 object DefineBuildTool {
 
     fun defineFor(project: Project): BuildTools = when {
-        project.baseDir.findChild("pom.xml") != null -> BuildTools.MAVEN
+        project.baseDir.findChild("mvnw") != null -> BuildTools.MAVENW_INSTALL
+        project.baseDir.findChild("pom.xml") != null -> BuildTools.MAVEN_INSTALL
         project.baseDir.findChild("gradlew") != null -> BuildTools.GRADLEW
         project.baseDir.findChild("build.gradle") != null -> BuildTools.GRADLE
         else -> BuildTools.DEFAULT

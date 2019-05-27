@@ -6,12 +6,12 @@ import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
 import com.maxciv.infer.plugin.data.report.InferReport
 import com.maxciv.infer.plugin.process.ProjectModuleUtils.getIdeaModuleForFile
-import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
+import com.maxciv.infer.plugin.process.ProjectModuleUtils.inferResultsDir
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
 import com.maxciv.infer.plugin.process.report.ReportProducer
 import com.maxciv.infer.plugin.process.shell.Shell
-import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorImpl
+import com.maxciv.infer.plugin.process.shell.nuproc.ShellCommandExecutorNuImpl
 import com.maxciv.infer.plugin.updateText
 import java.io.File
 
@@ -26,29 +26,42 @@ class InferRunnerImpl(
 ) : InferRunner {
 
     private val shell: Shell = Shell(
-        ShellCommandExecutorImpl(File(projectPath)),
+        ShellCommandExecutorNuImpl(File(projectPath)),
         pluginSettings
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
-    //FIXME что с анализом тестов/тестовых модулей?
+    //FIXME 50% переделать запуск процессов, их остановку, вывод
+
     //FIXME анализ зависает, если в классе ошибка компиляции
     //FIXME нормальное скачивание Инфера, прокси
-    //FIXME переделать запуск процессов, их остановку, вывод
     //FIXME удалять ошибки для несуществующих файлов
     //FIXME использовать .inferconfig
     //FIXME возможно class-анализ не может запускаться на чистую
-
-    //TODO emergency analysis (infer analyze)
 
     override fun runPreAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport =
         with(pluginSettings) {
             indicator.updateText("Infer: Cleaning...")
             when (buildTool) {
+                BuildTools.MAVENW -> {
+                    shell.mavenwClean()
+                    indicator.updateText("Infer: Capturing MavenW-Compile...")
+                    shell.mavenwCapture()
+                }
+                BuildTools.MAVENW_INSTALL -> {
+                    shell.mavenwClean()
+                    indicator.updateText("Infer: Capturing MavenW-Install...")
+                    shell.mavenwCaptureInstall()
+                }
                 BuildTools.MAVEN -> {
                     shell.mavenClean()
-                    indicator.updateText("Infer: Capturing Maven...")
+                    indicator.updateText("Infer: Capturing Maven-Compile...")
                     shell.mavenCapture()
+                }
+                BuildTools.MAVEN_INSTALL -> {
+                    shell.mavenClean()
+                    indicator.updateText("Infer: Capturing Maven-Install...")
+                    shell.mavenCaptureInstall()
                 }
                 BuildTools.GRADLEW -> {
                     shell.gradlewClean()
@@ -67,6 +80,7 @@ class InferRunnerImpl(
             indicator.updateText("Infer: Analysing...")
             shell.analyzeAll()
 
+            indicator.updateText("Infer: Finishing...")
             val inferReport = ReportProducer.produceInferReport(projectPath, inferWorkingDir)
             aggregatedInferReport = inferReport
             return aggregatedInferReport
@@ -81,7 +95,10 @@ class InferRunnerImpl(
         if (isCompileOnModuleAnalysisEnabled && shouldCompile) {
             indicator.updateText("Infer: Compiling...")
             when (buildTool) {
+                BuildTools.MAVENW -> shell.mavenwCompile()
+                BuildTools.MAVENW_INSTALL -> shell.mavenwInstall()
                 BuildTools.MAVEN -> shell.mavenCompile()
+                BuildTools.MAVEN_INSTALL -> shell.mavenInstall()
                 BuildTools.GRADLEW -> shell.gradlewCompile()
                 BuildTools.GRADLE -> shell.gradleCompile()
                 else -> return InferReport()
@@ -96,7 +113,7 @@ class InferRunnerImpl(
             )
             shell.analyzeClassFiles(module)
             val inferReport = ReportProducer.produceInferReport(
-                projectPath, getInferWorkingDirForModule(inferWorkingDir, module)
+                projectPath, inferResultsDir(pluginSettings, module)
             )
             aggregatedInferReport.updateForModuleReport(inferReport, module, projectPath)
         }
@@ -116,14 +133,20 @@ class InferRunnerImpl(
             val module = getIdeaModuleForFile(filepath, project)
             if (module != null && isCompileOnlyOneModuleOnModuleAnalysisEnabled) {
                 when (buildTool) {
+                    BuildTools.MAVENW -> shell.mavenwCompileModule(module.name)
+                    BuildTools.MAVENW_INSTALL -> shell.mavenwInstallModule(module.name)
                     BuildTools.MAVEN -> shell.mavenCompileModule(module.name)
+                    BuildTools.MAVEN_INSTALL -> shell.mavenInstallModule(module.name)
                     BuildTools.GRADLEW -> shell.gradlewCompileModule(module.name)
                     BuildTools.GRADLE -> shell.gradleCompileModule(module.name)
                     else -> return InferReport()
                 }
             } else {
                 when (buildTool) {
+                    BuildTools.MAVENW -> shell.mavenwCompile()
+                    BuildTools.MAVENW_INSTALL -> shell.mavenwInstall()
                     BuildTools.MAVEN -> shell.mavenCompile()
+                    BuildTools.MAVEN_INSTALL -> shell.mavenInstall()
                     BuildTools.GRADLEW -> shell.gradlewCompile()
                     BuildTools.GRADLE -> shell.gradleCompile()
                     else -> return InferReport()
@@ -136,7 +159,7 @@ class InferRunnerImpl(
         indicator.updateText("Infer: Finishing...")
         val inferReport = ReportProducer.produceInferReport(
             projectPath,
-            getInferWorkingDirForModule(inferWorkingDir, currentModule)
+            inferResultsDir(pluginSettings, currentModule)
         )
         aggregatedInferReport.updateForModuleReport(inferReport, currentModule, projectPath)
         return inferReport
@@ -171,7 +194,7 @@ class InferRunnerImpl(
 
             val inferReport = ReportProducer.produceInferReport(
                 projectPath,
-                getInferWorkingDirForModule(inferWorkingDir, currentModule)
+                inferResultsDir(pluginSettings, currentModule)
             )
             aggregatedInferReport.updateForFiles(fileList, inferReport, projectPath)
         }
@@ -185,7 +208,7 @@ class InferRunnerImpl(
         }
 
     private fun deleteRacerdResults(module: ProjectModule) {
-        val racerdDir = File(getInferWorkingDirForModule(pluginSettings.inferWorkingDir, module), "racerd")
+        val racerdDir = File(inferResultsDir(pluginSettings, module), "racerd")
         if (racerdDir.exists()) racerdDir.deleteRecursively()
     }
 }
