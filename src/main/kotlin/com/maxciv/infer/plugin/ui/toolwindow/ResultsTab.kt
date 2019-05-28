@@ -8,7 +8,6 @@ import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.FileEditorManagerListener.FILE_EDITOR_MANAGER
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.tabs.TabInfo
@@ -18,7 +17,6 @@ import com.intellij.util.ui.tree.TreeUtil
 import com.maxciv.infer.plugin.InferProjectComponent
 import com.maxciv.infer.plugin.actions.ActionGroups
 import com.maxciv.infer.plugin.config.InferPluginSettings
-import com.maxciv.infer.plugin.process.onsave.OnSaveAnalyzeListener
 import com.maxciv.infer.plugin.toProjectRelativePath
 import com.maxciv.infer.plugin.ui.tree.*
 import icons.InferIcons.ICON_FULL_REPORT
@@ -97,8 +95,6 @@ class ResultsTab(private val project: Project) : JPanel(BorderLayout()) {
                 updateCurrentFileTree(filename)
             }
         })
-
-        VirtualFileManager.getInstance().addVirtualFileListener(OnSaveAnalyzeListener(project))
     }
 
     fun updateCurrentFileTree(findCurrentFile: Boolean = false) {

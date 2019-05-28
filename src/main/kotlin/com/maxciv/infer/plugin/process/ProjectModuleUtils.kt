@@ -4,6 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
 import java.io.File
 
@@ -41,8 +42,11 @@ object ProjectModuleUtils {
         return if (possibleModule.isNotEmpty()) possibleModule[0] else ProjectModule(listOf(), listOf())
     }
 
-    fun getInferWorkingDirForModule(inferWorkingDir: String, module: ProjectModule): String =
-        inferWorkingDir + "_" + module.hashCode()
+    fun inferResultsDir(pluginSettings: InferPluginSettings, projectModule: ProjectModule): String = with(pluginSettings) {
+        if (isDifferentDirsForModulesEnabled)
+            inferWorkingDir + "_" + projectModule.hashCode()
+        else inferWorkingDir
+    }
 
     fun getIdeaModuleForFile(filename: String, project: Project): Module? =
         ModuleUtil.findModuleForFile(LocalFileSystem.getInstance().findFileByIoFile(File(filename))!!, project)

@@ -2,7 +2,7 @@ package com.maxciv.infer.plugin.process.shell
 
 import com.maxciv.infer.plugin.config.InferPluginSettings
 import com.maxciv.infer.plugin.data.ProjectModule
-import com.maxciv.infer.plugin.process.ProjectModuleUtils.getInferWorkingDirForModule
+import com.maxciv.infer.plugin.process.ProjectModuleUtils.inferResultsDir
 import java.io.File
 
 /**
@@ -19,7 +19,7 @@ class Shell(
         return shellCommandExecutor.execute(
             listOf(
                 inferPath,
-                "--results-dir", getInferWorkingDirForModule(inferWorkingDir, projectModule),
+                "--results-dir", inferResultsDir(pluginSettings, projectModule),
                 "--no-progress-bar",
                 "--reactive",
                 "capture",
@@ -35,7 +35,7 @@ class Shell(
         return shellCommandExecutor.execute(
             listOf(
                 inferPath,
-                "--results-dir", getInferWorkingDirForModule(inferWorkingDir, projectModule),
+                "--results-dir", inferResultsDir(pluginSettings, projectModule),
                 "--no-progress-bar",
                 "analyze",
                 "--changed-files-index", changedFilesIndex.canonicalPath
@@ -47,7 +47,7 @@ class Shell(
         return shellCommandExecutor.execute(
             listOf(
                 inferPath,
-                "--results-dir", getInferWorkingDirForModule(inferWorkingDir, projectModule),
+                "--results-dir", inferResultsDir(pluginSettings, projectModule),
                 "--no-progress-bar",
                 "--classpath", projectModule.getClasspath(),
                 "--sourcepath", projectModule.getSourcePath().split(":").first().trim(),
@@ -67,63 +67,115 @@ class Shell(
         )
     }
 
-    fun mavenClean(): CommandResult = shellCommandExecutor.execute(listOf("mvn", "clean"))
+    //region mavenW
+    fun mavenwClean(): CommandResult =
+        shellCommandExecutor.execute(listOf("./mvnw", "clean", "--quiet"))
 
-    fun mavenCompile(): CommandResult = shellCommandExecutor.execute(listOf("mvn", "compile"))
+    fun mavenwCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("./mvnw", mavenCaptureTask, "--quiet").plus(mavenUserArguments))
+    }
 
-    fun mavenCompileModule(moduleName: String): CommandResult =
-        shellCommandExecutor.execute(listOf("mvn", "compile", "-pl", moduleName))
+    fun mavenwCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(
+            listOf("./mvnw", mavenCaptureTask, "-pl", moduleName, "--quiet").plus(mavenUserArguments)
+        )
+    }
+
+    fun mavenwCapture(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(
+            listOf(
+                inferPath,
+                "--results-dir", inferWorkingDir,
+                "--no-progress-bar",
+                "capture",
+                "--",
+                "./mvnw", mavenCaptureTask, "--quiet"
+            ).plus(mavenUserArguments)
+        )
+    }
+    //endregion
+
+    //region maven
+    fun mavenClean(): CommandResult =
+        shellCommandExecutor.execute(listOf("mvn", "clean", "--quiet"))
+
+    fun mavenCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("mvn", mavenCaptureTask, "--quiet").plus(mavenUserArguments))
+    }
+
+    fun mavenCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(
+            listOf("mvn", mavenCaptureTask, "-pl", moduleName, "--quiet").plus(mavenUserArguments)
+        )
+    }
 
     fun mavenCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
+        shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "mvn", "compile"
-            )
+                "mvn", mavenCaptureTask, "--quiet"
+            ).plus(mavenUserArguments)
         )
     }
+    //endregion
 
-    fun gradlewClean(): CommandResult = shellCommandExecutor.execute(listOf("./gradlew", "clean"))
+    //region gradleW
+    fun gradlewClean(): CommandResult =
+        shellCommandExecutor.execute(listOf("./gradlew", "clean"))
 
-    fun gradlewCompile(): CommandResult = shellCommandExecutor.execute(listOf("./gradlew", "build"))
+    fun gradlewCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("./gradlew", gradleCaptureTask).plus(pluginSettings.gradleUserArguments))
+    }
 
-    fun gradlewCompileModule(moduleName: String): CommandResult =
-        shellCommandExecutor.execute(listOf("./gradlew", ":$moduleName:build"))
+    fun gradlewCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(
+            listOf("./gradlew", ":$moduleName:$gradleCaptureTask").plus(pluginSettings.gradleUserArguments)
+        )
+    }
 
     fun gradlewCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
+        shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "./gradlew", "build"
-            )
+                "./gradlew", gradleCaptureTask
+            ).plus(gradleUserArguments)
         )
     }
+    //endregion
 
-    fun gradleClean(): CommandResult = shellCommandExecutor.execute(listOf("gradle", "clean"))
+    //region gradle
+    fun gradleClean(): CommandResult =
+        shellCommandExecutor.execute(listOf("gradle", "clean"))
 
-    fun gradleCompile(): CommandResult = shellCommandExecutor.execute(listOf("gradle", "build"))
+    fun gradleCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("gradle", gradleCaptureTask).plus(pluginSettings.gradleUserArguments))
+    }
 
-    fun gradleCompileModule(moduleName: String): CommandResult =
-        shellCommandExecutor.execute(listOf("gradle", ":$moduleName:build"))
+    fun gradleCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(
+            listOf("gradle", ":$moduleName:$gradleCaptureTask").plus(pluginSettings.gradleUserArguments)
+        )
+    }
 
     fun gradleCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
+        shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "gradle", "build"
-            )
+                "gradle", gradleCaptureTask
+            ).plus(gradleUserArguments)
         )
     }
+    //endregion
 }

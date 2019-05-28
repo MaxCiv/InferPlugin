@@ -48,19 +48,24 @@ object GradleParser {
         .dropWhile { !it.contains(javacRegex) }
         .takeWhile { !it.contains(javaFilesRegex) }
         .map { it.replace(javacRegex, "") }
-        .flatMap { fullLine ->
-            var changedLine = fullLine
-            javacOptionRegex.findAll(fullLine)
-                .forEach {
-                    changedLine = changedLine.replace(it.value, "$DELIMETER${it.value}$DELIMETER")
-                }
-            changedLine.replace("^\uD83D\uDE31".toRegex(), "")
-                .replace("$DELIMETER$".toRegex(), "")
-                .split(DELIMETER).asSequence()
-        }
+        .flatMap { fullLine -> splitCompilerArgs(fullLine) }
         .filter { it.isNotEmpty() }
         .map { if (it.contains(spaceAtBeginningRegex)) it.drop(1) else it }
         .toList()
+
+    private fun splitCompilerArgs(fullLine: String): Sequence<String> {
+        var changedLine = fullLine
+        javacOptionRegex.findAll(fullLine)
+            .forEach {
+                changedLine = changedLine.replace(
+                    """${it.value}(\s|$)""".toRegex(),
+                    "$DELIMETER${it.value}$DELIMETER "
+                )
+            }
+        return changedLine.replace("^$DELIMETER".toRegex(), "")
+            .replace("$DELIMETER $".toRegex(), "")
+            .split(DELIMETER).asSequence()
+    }
 
     private fun updateCompilerArgsForFile(filename: String, compilerArgs: List<String>): List<String> {
         val sourcepath = sourcepathRegex.find(filename)!!.value
@@ -69,6 +74,8 @@ object GradleParser {
         val indexOfDestination = newArgs.indexOf("-d")
         val indexOfSourcepath = newArgs.indexOf("-sourcepath")
         val indexOfClasspath = newArgs.indexOf("-classpath")
+
+        if ((maxOf(indexOfDestination, indexOfSourcepath, indexOfClasspath) == newArgs.lastIndex)) newArgs.add("")
 
         val classpathAddition =
             newArgs[indexOfDestination + 1] + if (newArgs[indexOfClasspath + 1].isNotBlank()) File.pathSeparator else ""
