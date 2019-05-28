@@ -11,7 +11,7 @@ import com.maxciv.infer.plugin.process.parsers.ProjectModulesParser
 import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
 import com.maxciv.infer.plugin.process.report.ReportProducer
 import com.maxciv.infer.plugin.process.shell.Shell
-import com.maxciv.infer.plugin.process.shell.nuproc.ShellCommandExecutorNuImpl
+import com.maxciv.infer.plugin.process.shell.ShellCommandExecutorNuImpl
 import com.maxciv.infer.plugin.realName
 import com.maxciv.infer.plugin.updateText
 import java.io.File
@@ -39,6 +39,8 @@ class InferRunnerImpl(
     //FIXME удалять ошибки для несуществующих файлов
     //FIXME использовать .inferconfig
     //FIXME возможно class-анализ не может запускаться на чистую
+
+    //TODO логи плагина писать в отдельный файл
 
     override fun runPreAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport =
         with(pluginSettings) {
