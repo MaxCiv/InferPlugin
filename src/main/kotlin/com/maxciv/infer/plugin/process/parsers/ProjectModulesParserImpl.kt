@@ -20,7 +20,7 @@ class ProjectModulesParserImpl : ProjectModulesParser {
 
         val logLines = BufferedReader(FileReader(logsFile) as Reader?).readText()
         return when (buildTool) {
-            MAVEN, MAVEN_INSTALL, MAVENW, MAVENW_INSTALL -> MavenParser.getCompilerArgs(logLines)
+            MAVEN, MAVENW -> MavenParser.getCompilerArgs(logLines)
             GRADLE, GRADLEW -> GradleParser.getCompilerArgs(logLines)
             else -> listOf()
         }

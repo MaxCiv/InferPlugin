@@ -71,53 +71,25 @@ class Shell(
     fun mavenwClean(): CommandResult =
         shellCommandExecutor.execute(listOf("./mvnw", "clean", "--quiet"))
 
-    fun mavenwCompile(): CommandResult =
-        shellCommandExecutor.execute(listOf("./mvnw", "compile", "--quiet").plus(pluginSettings.mavenUserArguments))
+    fun mavenwCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("./mvnw", mavenCaptureTask, "--quiet").plus(mavenUserArguments))
+    }
 
-    fun mavenwCompileModule(moduleName: String): CommandResult =
+    fun mavenwCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf("./mvnw", "compile", "--quiet", "-pl", moduleName, "--quiet").plus(pluginSettings.mavenUserArguments)
-        )
-
-    fun mavenwCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
-            listOf(
-                inferPath,
-                "--results-dir", inferWorkingDir,
-                "--no-progress-bar",
-                "capture",
-                "--",
-                "./mvnw", "compile", "--quiet"
-            ).plus(mavenUserArguments)
+            listOf("./mvnw", mavenCaptureTask, "--quiet", "-pl", moduleName, "--quiet").plus(mavenUserArguments)
         )
     }
 
-    fun mavenwInstall(): CommandResult =
+    fun mavenwCapture(): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf(
-                "./mvnw",
-                "install",
-                "-DskipTests",
-                "--quiet"
-            ).plus(pluginSettings.mavenUserArguments)
-        )
-
-    fun mavenwInstallModule(moduleName: String): CommandResult =
-        shellCommandExecutor.execute(
-            listOf("./mvnw", "install", "-DskipTests", "--quiet", "-pl", moduleName).plus(
-                pluginSettings.mavenUserArguments
-            )
-        )
-
-    fun mavenwCaptureInstall(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "./mvnw", "install", "-DskipTests", "--quiet"
+                "./mvnw", mavenCaptureTask, "--quiet"
             ).plus(mavenUserArguments)
         )
     }
@@ -127,59 +99,31 @@ class Shell(
     fun mavenClean(): CommandResult =
         shellCommandExecutor.execute(listOf("mvn", "clean", "--quiet"))
 
-    fun mavenCompile(): CommandResult =
-        shellCommandExecutor.execute(listOf("mvn", "compile", "--quiet").plus(pluginSettings.mavenUserArguments))
+    fun mavenCompile(): CommandResult = with(pluginSettings) {
+        shellCommandExecutor.execute(listOf("mvn", mavenCaptureTask, "--quiet").plus(mavenUserArguments))
+    }
 
-    fun mavenCompileModule(moduleName: String): CommandResult =
+    fun mavenCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
             listOf(
                 "mvn",
-                "compile",
+                mavenCaptureTask,
                 "--quiet",
                 "-pl",
                 moduleName
-            ).plus(pluginSettings.mavenUserArguments)
-        )
-
-    fun mavenCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
-            listOf(
-                inferPath,
-                "--results-dir", inferWorkingDir,
-                "--no-progress-bar",
-                "capture",
-                "--",
-                "mvn", "compile", "--quiet"
             ).plus(mavenUserArguments)
         )
     }
 
-    fun mavenInstall(): CommandResult =
+    fun mavenCapture(): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf(
-                "mvn",
-                "install",
-                "-DskipTests",
-                "--quiet"
-            ).plus(pluginSettings.mavenUserArguments)
-        )
-
-    fun mavenInstallModule(moduleName: String): CommandResult =
-        shellCommandExecutor.execute(
-            listOf("mvn", "install", "-DskipTests", "--quiet", "-pl", moduleName).plus(
-                pluginSettings.mavenUserArguments
-            )
-        )
-
-    fun mavenCaptureInstall(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "mvn", "install", "-DskipTests", "--quiet"
+                "mvn", mavenCaptureTask, "--quiet"
             ).plus(mavenUserArguments)
         )
     }
@@ -187,35 +131,36 @@ class Shell(
 
     //region gradleW
     fun gradlewClean(): CommandResult =
-        shellCommandExecutor.execute(listOf("./gradlew", "clean", "--quiet"))
+        shellCommandExecutor.execute(listOf("./gradlew", "clean"))
 
-    fun gradlewCompile(): CommandResult =
+    fun gradlewCompile(): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
             listOf(
                 "./gradlew",
-                "build",
+                gradleCaptureTask,
                 "-x",
-                "test",
-                "--quiet"
+                "test"
             ).plus(pluginSettings.gradleUserArguments)
         )
+    }
 
-    fun gradlewCompileModule(moduleName: String): CommandResult =
+    fun gradlewCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf("./gradlew", ":$moduleName:build", "-x", "test", "--quiet").plus(
+            listOf("./gradlew", ":$moduleName:$gradleCaptureTask", "-x", "test").plus(
                 pluginSettings.gradleUserArguments
             )
         )
+    }
 
     fun gradlewCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
+        shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "./gradlew", "build", "-x", "test", "--quiet"
+                "./gradlew", gradleCaptureTask, "-x", "test"
             ).plus(gradleUserArguments)
         )
     }
@@ -223,39 +168,39 @@ class Shell(
 
     //region gradle
     fun gradleClean(): CommandResult =
-        shellCommandExecutor.execute(listOf("gradle", "clean", "--quiet"))
+        shellCommandExecutor.execute(listOf("gradle", "clean"))
 
-    fun gradleCompile(): CommandResult =
+    fun gradleCompile(): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
             listOf(
                 "gradle",
-                "build",
+                gradleCaptureTask,
                 "-x",
-                "test",
-                "--quiet"
+                "test"
             ).plus(pluginSettings.gradleUserArguments)
         )
+    }
 
-    fun gradleCompileModule(moduleName: String): CommandResult =
+    fun gradleCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
             listOf(
                 "gradle",
-                ":$moduleName:build",
+                ":$moduleName:$gradleCaptureTask",
                 "-x",
-                "test",
-                "--quiet"
+                "test"
             ).plus(pluginSettings.gradleUserArguments)
         )
+    }
 
     fun gradleCapture(): CommandResult = with(pluginSettings) {
-        return shellCommandExecutor.execute(
+        shellCommandExecutor.execute(
             listOf(
                 inferPath,
                 "--results-dir", inferWorkingDir,
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "gradle", "build", "-x", "test", "--quiet"
+                "gradle", gradleCaptureTask, "-x", "test"
             ).plus(gradleUserArguments)
         )
     }

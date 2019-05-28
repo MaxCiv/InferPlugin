@@ -84,12 +84,17 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     private val inferVersionComboBox: ComboBox<String> = createInferVersionComboBox()
     private val downloadInferButton = JButton("Download")
 
-    private val mavenArgsLabel = JLabel("Maven args:", ICON_ARRAY, SwingConstants.RIGHT)
+    private val mavenCaptureTaskLabel = JLabel("Maven capture task:", ICON_ARRAY, SwingConstants.LEFT)
+    private val mavenCaptureTaskTextField = JTextField(pluginSettings.mavenCaptureTask, SwingConstants.LEFT)
     private val mavenArgsTextField =
         JTextField(pluginSettings.mavenUserArguments.joinToString(" "), SwingConstants.LEFT)
+    private val mavenArgsLabel = JLabel(":Maven args", ICON_ARRAY, SwingConstants.LEFT)
+
+    private val gradleCaptureTaskLabel = JLabel("Gradle capture task:", ICON_ARRAY, SwingConstants.LEFT)
+    private val gradleCaptureTaskTextField = JTextField(pluginSettings.gradleCaptureTask, SwingConstants.LEFT)
     private val gradleArgsTextField =
-        JTextField(pluginSettings.gradleUserArguments.joinToString(" "), SwingConstants.RIGHT)
-    private val gradleArgsLabel = JLabel("Gradle args", ICON_ARRAY, SwingConstants.LEFT)
+        JTextField(pluginSettings.gradleUserArguments.joinToString(" "), SwingConstants.LEFT)
+    private val gradleArgsLabel = JLabel(":Gradle args", ICON_ARRAY, SwingConstants.LEFT)
     //endregion
 
     init {
@@ -107,6 +112,14 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
 
         gradleArgsTextField.document.addDocumentListener {
             pluginSettings.gradleUserArguments = gradleArgsTextField.text.split(" ")
+        }
+
+        mavenCaptureTaskTextField.document.addDocumentListener {
+            pluginSettings.mavenCaptureTask = mavenCaptureTaskTextField.text
+        }
+
+        gradleCaptureTaskTextField.document.addDocumentListener {
+            pluginSettings.gradleCaptureTask = gradleCaptureTaskTextField.text
         }
 
         importReportButton.addActionListener {
@@ -147,6 +160,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 OperationSystems.valueOfTitle(osComboBox.selectedItem as String)
             )
         }
+        updateBuildToolFieldsVisibility()
         add(createMainPanel(), BorderLayout.NORTH)
         project.getComponent(InferProjectComponent::class.java).settingsTab = this
     }
@@ -160,7 +174,13 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
         add(
             compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
-                1, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            differentDirsForModulesCheckBox, GridBagConstraints(
+                2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -170,7 +190,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
             buildToolLabel, GridBagConstraints(
                 0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -189,7 +209,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
             importExportLabel, GridBagConstraints(
                 0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -208,7 +228,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
             inferPathLabel, GridBagConstraints(
                 0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -227,7 +247,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
             inferWorkingDirLabel, GridBagConstraints(
                 0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -246,7 +266,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
             downloadInferLabel, GridBagConstraints(
                 0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -271,35 +291,53 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
-
+        //
         add(
-            differentDirsForModulesCheckBox, GridBagConstraints(
-                1, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-
-        add(
-            mavenArgsLabel, GridBagConstraints(
+            mavenCaptureTaskLabel, GridBagConstraints(
                 0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
         add(
-            mavenArgsTextField, GridBagConstraints(
+            mavenCaptureTaskTextField, GridBagConstraints(
                 1, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
-            gradleArgsTextField, GridBagConstraints(
+            mavenArgsTextField, GridBagConstraints(
                 2, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
-            gradleArgsLabel, GridBagConstraints(
+            mavenArgsLabel, GridBagConstraints(
                 3, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        //
+        add(
+            gradleCaptureTaskLabel, GridBagConstraints(
+                0, 8, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            gradleCaptureTaskTextField, GridBagConstraints(
+                1, 8, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            gradleArgsTextField, GridBagConstraints(
+                2, 8, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            gradleArgsLabel, GridBagConstraints(
+                3, 8, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -316,6 +354,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         addActionListener { actionEvent ->
             val comboBox = actionEvent.source as ComboBox<*>
             pluginSettings.buildTool = BuildTools.valueOf(comboBox.selectedItem as String)
+            updateBuildToolFieldsVisibility()
         }
     }
 
@@ -332,6 +371,31 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         model = DefaultComboBoxModel(OS_STRINGS)
         GlobalScope.launch {
             model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
+        }
+    }
+
+    private fun updateBuildToolFieldsVisibility() {
+        when (pluginSettings.buildTool) {
+            BuildTools.MAVEN, BuildTools.MAVENW -> {
+                mavenCaptureTaskLabel.isVisible = true
+                mavenCaptureTaskTextField.isVisible = true
+                mavenArgsTextField.isVisible = true
+                mavenArgsLabel.isVisible = true
+                gradleCaptureTaskLabel.isVisible = false
+                gradleCaptureTaskTextField.isVisible = false
+                gradleArgsTextField.isVisible = false
+                gradleArgsLabel.isVisible = false
+            }
+            BuildTools.GRADLE, BuildTools.GRADLEW -> {
+                mavenCaptureTaskLabel.isVisible = false
+                mavenCaptureTaskTextField.isVisible = false
+                mavenArgsTextField.isVisible = false
+                mavenArgsLabel.isVisible = false
+                gradleCaptureTaskLabel.isVisible = true
+                gradleCaptureTaskTextField.isVisible = true
+                gradleArgsTextField.isVisible = true
+                gradleArgsLabel.isVisible = true
+            }
         }
     }
 

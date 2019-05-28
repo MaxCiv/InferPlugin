@@ -16,6 +16,8 @@ data class InferPluginSettings(
     var buildTool: BuildTools = BuildTools.DEFAULT,
     var os: OperationSystems = OperationSystems.defineOs(),
     var projectModules: MutableList<ProjectModule> = mutableListOf(),
+    var mavenCaptureTask: String = "compile",
+    var gradleCaptureTask: String = "build",
     var mavenUserArguments: List<String> = listOf(),
     var gradleUserArguments: List<String> = listOf(),
     var isAutoscrollToSourceEnabled: Boolean = true,

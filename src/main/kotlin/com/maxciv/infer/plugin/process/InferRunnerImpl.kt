@@ -48,20 +48,10 @@ class InferRunnerImpl(
                     indicator.updateText("Infer: Capturing MavenW-Compile...")
                     shell.mavenwCapture()
                 }
-                BuildTools.MAVENW_INSTALL -> {
-                    shell.mavenwClean()
-                    indicator.updateText("Infer: Capturing MavenW-Install...")
-                    shell.mavenwCaptureInstall()
-                }
                 BuildTools.MAVEN -> {
                     shell.mavenClean()
                     indicator.updateText("Infer: Capturing Maven-Compile...")
                     shell.mavenCapture()
-                }
-                BuildTools.MAVEN_INSTALL -> {
-                    shell.mavenClean()
-                    indicator.updateText("Infer: Capturing Maven-Install...")
-                    shell.mavenCaptureInstall()
                 }
                 BuildTools.GRADLEW -> {
                     shell.gradlewClean()
@@ -96,9 +86,7 @@ class InferRunnerImpl(
             indicator.updateText("Infer: Compiling...")
             when (buildTool) {
                 BuildTools.MAVENW -> shell.mavenwCompile()
-                BuildTools.MAVENW_INSTALL -> shell.mavenwInstall()
                 BuildTools.MAVEN -> shell.mavenCompile()
-                BuildTools.MAVEN_INSTALL -> shell.mavenInstall()
                 BuildTools.GRADLEW -> shell.gradlewCompile()
                 BuildTools.GRADLE -> shell.gradleCompile()
                 else -> return InferReport()
@@ -134,9 +122,7 @@ class InferRunnerImpl(
             if (module != null && isCompileOnlyOneModuleOnModuleAnalysisEnabled) {
                 when (buildTool) {
                     BuildTools.MAVENW -> shell.mavenwCompileModule(module.name)
-                    BuildTools.MAVENW_INSTALL -> shell.mavenwInstallModule(module.name)
                     BuildTools.MAVEN -> shell.mavenCompileModule(module.name)
-                    BuildTools.MAVEN_INSTALL -> shell.mavenInstallModule(module.name)
                     BuildTools.GRADLEW -> shell.gradlewCompileModule(module.name)
                     BuildTools.GRADLE -> shell.gradleCompileModule(module.name)
                     else -> return InferReport()
@@ -144,9 +130,7 @@ class InferRunnerImpl(
             } else {
                 when (buildTool) {
                     BuildTools.MAVENW -> shell.mavenwCompile()
-                    BuildTools.MAVENW_INSTALL -> shell.mavenwInstall()
                     BuildTools.MAVEN -> shell.mavenCompile()
-                    BuildTools.MAVEN_INSTALL -> shell.mavenInstall()
                     BuildTools.GRADLEW -> shell.gradlewCompile()
                     BuildTools.GRADLE -> shell.gradleCompile()
                     else -> return InferReport()
