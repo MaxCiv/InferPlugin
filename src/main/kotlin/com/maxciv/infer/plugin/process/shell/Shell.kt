@@ -77,7 +77,7 @@ class Shell(
 
     fun mavenwCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf("./mvnw", mavenCaptureTask, "--quiet", "-pl", moduleName, "--quiet").plus(mavenUserArguments)
+            listOf("./mvnw", mavenCaptureTask, "-pl", moduleName, "--quiet").plus(mavenUserArguments)
         )
     }
 
@@ -105,13 +105,7 @@ class Shell(
 
     fun mavenCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf(
-                "mvn",
-                mavenCaptureTask,
-                "--quiet",
-                "-pl",
-                moduleName
-            ).plus(mavenUserArguments)
+            listOf("mvn", mavenCaptureTask, "-pl", moduleName, "--quiet").plus(mavenUserArguments)
         )
     }
 
@@ -134,21 +128,12 @@ class Shell(
         shellCommandExecutor.execute(listOf("./gradlew", "clean"))
 
     fun gradlewCompile(): CommandResult = with(pluginSettings) {
-        shellCommandExecutor.execute(
-            listOf(
-                "./gradlew",
-                gradleCaptureTask,
-                "-x",
-                "test"
-            ).plus(pluginSettings.gradleUserArguments)
-        )
+        shellCommandExecutor.execute(listOf("./gradlew", gradleCaptureTask).plus(pluginSettings.gradleUserArguments))
     }
 
     fun gradlewCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf("./gradlew", ":$moduleName:$gradleCaptureTask", "-x", "test").plus(
-                pluginSettings.gradleUserArguments
-            )
+            listOf("./gradlew", ":$moduleName:$gradleCaptureTask").plus(pluginSettings.gradleUserArguments)
         )
     }
 
@@ -160,7 +145,7 @@ class Shell(
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "./gradlew", gradleCaptureTask, "-x", "test"
+                "./gradlew", gradleCaptureTask
             ).plus(gradleUserArguments)
         )
     }
@@ -171,24 +156,12 @@ class Shell(
         shellCommandExecutor.execute(listOf("gradle", "clean"))
 
     fun gradleCompile(): CommandResult = with(pluginSettings) {
-        shellCommandExecutor.execute(
-            listOf(
-                "gradle",
-                gradleCaptureTask,
-                "-x",
-                "test"
-            ).plus(pluginSettings.gradleUserArguments)
-        )
+        shellCommandExecutor.execute(listOf("gradle", gradleCaptureTask).plus(pluginSettings.gradleUserArguments))
     }
 
     fun gradleCompileModule(moduleName: String): CommandResult = with(pluginSettings) {
         shellCommandExecutor.execute(
-            listOf(
-                "gradle",
-                ":$moduleName:$gradleCaptureTask",
-                "-x",
-                "test"
-            ).plus(pluginSettings.gradleUserArguments)
+            listOf("gradle", ":$moduleName:$gradleCaptureTask").plus(pluginSettings.gradleUserArguments)
         )
     }
 
@@ -200,7 +173,7 @@ class Shell(
                 "--no-progress-bar",
                 "capture",
                 "--",
-                "gradle", gradleCaptureTask, "-x", "test"
+                "gradle", gradleCaptureTask
             ).plus(gradleUserArguments)
         )
     }

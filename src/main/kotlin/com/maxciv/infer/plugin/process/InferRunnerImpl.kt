@@ -12,6 +12,7 @@ import com.maxciv.infer.plugin.process.parsers.ProjectModulesParserImpl
 import com.maxciv.infer.plugin.process.report.ReportProducer
 import com.maxciv.infer.plugin.process.shell.Shell
 import com.maxciv.infer.plugin.process.shell.nuproc.ShellCommandExecutorNuImpl
+import com.maxciv.infer.plugin.realName
 import com.maxciv.infer.plugin.updateText
 import java.io.File
 
@@ -120,11 +121,12 @@ class InferRunnerImpl(
             indicator.updateText("Infer: Compiling...")
             val module = getIdeaModuleForFile(filepath, project)
             if (module != null && isCompileOnlyOneModuleOnModuleAnalysisEnabled) {
+                val moduleName = module.realName()
                 when (buildTool) {
-                    BuildTools.MAVENW -> shell.mavenwCompileModule(module.name)
-                    BuildTools.MAVEN -> shell.mavenCompileModule(module.name)
-                    BuildTools.GRADLEW -> shell.gradlewCompileModule(module.name)
-                    BuildTools.GRADLE -> shell.gradleCompileModule(module.name)
+                    BuildTools.MAVENW -> shell.mavenwCompileModule(moduleName)
+                    BuildTools.MAVEN -> shell.mavenCompileModule(moduleName)
+                    BuildTools.GRADLEW -> shell.gradlewCompileModule(moduleName)
+                    BuildTools.GRADLE -> shell.gradleCompileModule(moduleName)
                     else -> return InferReport()
                 }
             } else {

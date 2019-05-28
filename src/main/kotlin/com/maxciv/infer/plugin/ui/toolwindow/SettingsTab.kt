@@ -107,11 +107,13 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         }
 
         mavenArgsTextField.document.addDocumentListener {
-            pluginSettings.mavenUserArguments = mavenArgsTextField.text.split(" ")
+            pluginSettings.mavenUserArguments =
+                mavenArgsTextField.text.split(" ").filter { it.isNotBlank() }.toMutableList()
         }
 
         gradleArgsTextField.document.addDocumentListener {
-            pluginSettings.gradleUserArguments = gradleArgsTextField.text.split(" ")
+            pluginSettings.gradleUserArguments =
+                gradleArgsTextField.text.split(" ").filter { it.isNotBlank() }.toMutableList()
         }
 
         mavenCaptureTaskTextField.document.addDocumentListener {

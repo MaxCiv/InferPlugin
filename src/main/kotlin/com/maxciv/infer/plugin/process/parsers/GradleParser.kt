@@ -75,6 +75,8 @@ object GradleParser {
         val indexOfSourcepath = newArgs.indexOf("-sourcepath")
         val indexOfClasspath = newArgs.indexOf("-classpath")
 
+        if ((maxOf(indexOfDestination, indexOfSourcepath, indexOfClasspath) == newArgs.lastIndex)) newArgs.add("")
+
         val classpathAddition =
             newArgs[indexOfDestination + 1] + if (newArgs[indexOfClasspath + 1].isNotBlank()) File.pathSeparator else ""
         newArgs[indexOfClasspath + 1] = classpathAddition + newArgs[indexOfClasspath + 1]

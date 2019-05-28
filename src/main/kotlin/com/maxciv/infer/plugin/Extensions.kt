@@ -1,5 +1,6 @@
 package com.maxciv.infer.plugin
 
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import java.io.File
@@ -25,3 +26,5 @@ fun ProgressIndicator?.updateText(newText: String, progress: Double = -1.0) {
  * with projectPath = '/root/some'
  */
 fun String.toProjectRelativePath(projectPath: String): String = this.replace(projectPath + File.separator, "")
+
+fun Module.realName(): String = this.name.replace("""_(main|test)$""".toRegex(), "")
