@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 group 'com.maxciv'
-version '1.0'
+version '0.1.0'
 
 repositories {
     mavenCentral()

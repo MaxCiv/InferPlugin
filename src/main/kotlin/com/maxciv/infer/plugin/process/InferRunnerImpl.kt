@@ -32,15 +32,16 @@ class InferRunnerImpl(
     )
     private val projectModulesParser: ProjectModulesParser = ProjectModulesParserImpl()
 
-    //FIXME 50% переделать запуск процессов, их остановку, вывод
+    //FIXME 50%: переделать запуск процессов, их остановку, вывод
 
-    //FIXME анализ зависает, если в классе ошибка компиляции
     //FIXME нормальное скачивание Инфера, прокси
     //FIXME удалять ошибки для несуществующих файлов
     //FIXME использовать .inferconfig
     //FIXME возможно class-анализ не может запускаться на чистую
+    //FIXME javac должен быть успешным (код 0)
 
     //TODO логи плагина писать в отдельный файл
+    //TODO нахождение бинарников инфера при первом запуске
 
     override fun runPreAnalysis(buildTool: BuildTools, indicator: ProgressIndicator?): InferReport =
         with(pluginSettings) {
@@ -48,12 +49,12 @@ class InferRunnerImpl(
             when (buildTool) {
                 BuildTools.MAVENW -> {
                     shell.mavenwClean()
-                    indicator.updateText("Infer: Capturing MavenW-Compile...")
+                    indicator.updateText("Infer: Capturing MavenW...")
                     shell.mavenwCapture()
                 }
                 BuildTools.MAVEN -> {
                     shell.mavenClean()
-                    indicator.updateText("Infer: Capturing Maven-Compile...")
+                    indicator.updateText("Infer: Capturing Maven...")
                     shell.mavenCapture()
                 }
                 BuildTools.GRADLEW -> {
@@ -174,7 +175,8 @@ class InferRunnerImpl(
 
             indicator.updateText("Infer: Capturing...")
             deleteRacerdResults(currentModule)
-            shell.javac(fileList, currentModule)
+            val result = shell.javac(fileList, currentModule)
+            if (!result.isSuccess) return@forEach   //TODO сообщать об ошибке
 
             indicator.updateText("Infer: Analysing...")
             val changedFilesIndex = createChangedFilesIndex(fileList)

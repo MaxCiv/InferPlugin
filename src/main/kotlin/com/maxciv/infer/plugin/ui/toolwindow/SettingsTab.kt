@@ -98,29 +98,29 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     //endregion
 
     init {
-        inferPathTextField.document.addDocumentListener {
+        inferPathTextField.document.addAllEventsDocumentListener {
             pluginSettings.inferPath = inferPathTextField.text
         }
 
-        inferWorkingDirTextField.document.addDocumentListener {
+        inferWorkingDirTextField.document.addAllEventsDocumentListener {
             pluginSettings.inferWorkingDir = inferWorkingDirTextField.text
         }
 
-        mavenArgsTextField.document.addDocumentListener {
+        mavenArgsTextField.document.addAllEventsDocumentListener {
             pluginSettings.mavenUserArguments =
                 mavenArgsTextField.text.split(" ").filter { it.isNotBlank() }.toMutableList()
         }
 
-        gradleArgsTextField.document.addDocumentListener {
+        gradleArgsTextField.document.addAllEventsDocumentListener {
             pluginSettings.gradleUserArguments =
                 gradleArgsTextField.text.split(" ").filter { it.isNotBlank() }.toMutableList()
         }
 
-        mavenCaptureTaskTextField.document.addDocumentListener {
+        mavenCaptureTaskTextField.document.addAllEventsDocumentListener {
             pluginSettings.mavenCaptureTask = mavenCaptureTaskTextField.text
         }
 
-        gradleCaptureTaskTextField.document.addDocumentListener {
+        gradleCaptureTaskTextField.document.addAllEventsDocumentListener {
             pluginSettings.gradleCaptureTask = gradleCaptureTaskTextField.text
         }
 
@@ -168,30 +168,30 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     }
 
     private fun createMainPanel(): JPanel = JPanel(GridBagLayout()).apply {
-        add(
-            compileOnModuleAnalysisCheckBox, GridBagConstraints(
-                0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
-                1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            differentDirsForModulesCheckBox, GridBagConstraints(
-                2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            shortClassNamesCheckBox, GridBagConstraints(
-                3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
+//        add(
+//            compileOnModuleAnalysisCheckBox, GridBagConstraints(
+//                0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+//            )
+//        )
+//        add(
+//            compileOnlyOneModuleOnModuleAnalysisCheckBox, GridBagConstraints(
+//                1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+//            )
+//        )
+//        add(
+//            differentDirsForModulesCheckBox, GridBagConstraints(
+//                2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+//            )
+//        )
+//        add(
+//            shortClassNamesCheckBox, GridBagConstraints(
+//                3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+//                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+//            )
+//        )
         //
         add(
             buildToolLabel, GridBagConstraints(
@@ -213,133 +213,139 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         )
         //
         add(
-            importExportLabel, GridBagConstraints(
+            mavenCaptureTaskLabel, GridBagConstraints(
                 0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
         add(
-            importReportButton, GridBagConstraints(
-                1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            exportReportButton, GridBagConstraints(
-                2, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        //
-        add(
-            inferPathLabel, GridBagConstraints(
-                0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            inferPathTextField, GridBagConstraints(
-                1, 3, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            chooseInferPathButton, GridBagConstraints(
-                3, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        //
-        add(
-            inferWorkingDirLabel, GridBagConstraints(
-                0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            inferWorkingDirTextField, GridBagConstraints(
-                1, 4, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            chooseInferWorkingDirButton, GridBagConstraints(
-                3, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        //
-        add(
-            downloadInferLabel, GridBagConstraints(
-                0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            osComboBox, GridBagConstraints(
-                1, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            inferVersionComboBox, GridBagConstraints(
-                2, 5, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
-            downloadInferButton, GridBagConstraints(
-                3, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
-            )
-        )
-        //
-        add(
-            mavenCaptureTaskLabel, GridBagConstraints(
-                0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
-            )
-        )
-        add(
             mavenCaptureTaskTextField, GridBagConstraints(
-                1, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
             mavenArgsTextField, GridBagConstraints(
-                2, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                2, 2, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
             mavenArgsLabel, GridBagConstraints(
-                3, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                3, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         //
         add(
             gradleCaptureTaskLabel, GridBagConstraints(
-                0, 8, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
             )
         )
         add(
             gradleCaptureTaskTextField, GridBagConstraints(
-                1, 8, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                1, 3, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
             gradleArgsTextField, GridBagConstraints(
-                2, 8, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                2, 3, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
         add(
             gradleArgsLabel, GridBagConstraints(
-                3, 8, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                3, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        //
+        add(
+            importExportLabel, GridBagConstraints(
+                0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            importReportButton, GridBagConstraints(
+                1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.EAST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            exportReportButton, GridBagConstraints(
+                2, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            shortClassNamesCheckBox, GridBagConstraints(
+                3, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        //
+        add(
+            inferPathLabel, GridBagConstraints(
+                0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            inferPathTextField, GridBagConstraints(
+                1, 5, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            chooseInferPathButton, GridBagConstraints(
+                3, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        //
+        add(
+            inferWorkingDirLabel, GridBagConstraints(
+                0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            inferWorkingDirTextField, GridBagConstraints(
+                1, 6, 2, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            chooseInferWorkingDirButton, GridBagConstraints(
+                3, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        //
+        add(
+            downloadInferLabel, GridBagConstraints(
+                0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            osComboBox, GridBagConstraints(
+                1, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            inferVersionComboBox, GridBagConstraints(
+                2, 7, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
+                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
+            )
+        )
+        add(
+            downloadInferButton, GridBagConstraints(
+                3, 7, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
                 GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0
             )
         )
@@ -370,7 +376,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
     }
 
     private fun createInferVersionComboBox(): ComboBox<String> = ComboBox<String>().apply {
-        model = DefaultComboBoxModel(OS_STRINGS)
+        model = DefaultComboBoxModel(VERSION_STRINGS)
         GlobalScope.launch {
             model = DefaultComboBoxModel(inferDownloader.getVersionList().toTypedArray())
         }
@@ -401,7 +407,7 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
         }
     }
 
-    private inline fun Document.addDocumentListener(crossinline block: () -> Unit) {
+    private inline fun Document.addAllEventsDocumentListener(crossinline block: () -> Unit) {
         this.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = block()
             override fun removeUpdate(e: DocumentEvent) = block()
@@ -415,5 +421,6 @@ class SettingsTab(private val project: Project) : JPanel(BorderLayout()) {
             BuildTools.values().filter { it != BuildTools.DEFAULT }.map { it.name }.toTypedArray()
         private val OS_STRINGS =
             OperationSystems.values().filter { it != OperationSystems.DEFAULT }.map { it.title }.toTypedArray()
+        private val VERSION_STRINGS = listOf("v.0.16.0", "v.0.15.0").toTypedArray()
     }
 }

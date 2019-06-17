@@ -1,9 +1,9 @@
-<idea-plugin>
+<idea-plugin url="https://github.com/MaxCiv/InferPlugin">
     <id>com.maxciv.infer-plugin</id>
     <name>InferPlugin</name>
     <vendor email="max2896@ya.ru">Max Oleynik</vendor>
 
-    <description>IntelliJ Platform plugin for Facebook Infer</description>
+    <description>IntelliJ Platform plugin for Facebook Infer https://github.com/MaxCiv/InferPlugin</description>
 
     <idea-version since-build="181.0"/>
 
@@ -37,16 +37,22 @@
                     description="Run analysis on current file"
                     icon="AllIcons.RunConfigurations.TestState.Run"/>
 
-            <action id="RunModuleAnalysisAction"
-                    class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"
-                    text="Run analysis on current module, corresponding to opened file"
-                    description="Run analysis on current module, corresponding to opened file"
-                    icon="/icons/green2.png"/>
+<!--            <action id="RunModuleAnalysisAction"-->
+<!--                    class="com.maxciv.infer.plugin.actions.tabs.results.RunModuleAnalysisAction"-->
+<!--                    text="Run analysis on current module, corresponding to opened file"-->
+<!--                    description="Run analysis on current module, corresponding to opened file"-->
+<!--                    icon="/icons/green2.png"/>-->
 
-            <action id="RunAllModulesAnalysisAction"
-                    class="com.maxciv.infer.plugin.actions.tabs.results.RunAllModulesAnalysisAction"
-                    text="Run analysis on all modules"
-                    description="Run analysis on all modules"
+<!--            <action id="RunAllModulesAnalysisAction"-->
+<!--                    class="com.maxciv.infer.plugin.actions.tabs.results.RunAllModulesAnalysisAction"-->
+<!--                    text="Run analysis on all modules"-->
+<!--                    description="Run analysis on all modules"-->
+<!--                    icon="AllIcons.RunConfigurations.TestState.Run_run"/>-->
+
+            <action id="RunPreAnalysisAction"
+                    class="com.maxciv.infer.plugin.actions.tabs.results.RunPreAnalysisAction"
+                    text="Run full analysis"
+                    description="Run full analysis"
                     icon="AllIcons.RunConfigurations.TestState.Run_run"/>
 
             <separator/>

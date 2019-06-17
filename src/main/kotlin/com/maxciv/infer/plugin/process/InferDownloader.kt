@@ -23,7 +23,6 @@ import java.net.Proxy
 import java.net.URL
 import java.util.concurrent.atomic.AtomicInteger
 
-
 /**
  * @author maxim.oleynik
  * @since 16.05.2019
