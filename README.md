@@ -20,4 +20,6 @@ Supports incremental and full analysis. Also available OnSave analysis.
 ### How to run IDE with plugin from sources
 Gradle -> Tasks -> intellij -> runIde.
 
+----
+
 ![](https://github.com/MaxCiv/InferPlugin/blob/master/screenshots/ToddHoward.jpg)
